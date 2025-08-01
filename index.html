@@ -386,9 +386,37 @@
     <div class="fireworks" id="fireworks"></div>
 
     <script>
-        // ハムスター画像データ（実際の画像は読み込み時に設定）
-        const hamsterImages = [];
-        let cardBackImage = '';
+        // ハムスター画像データ（実際の画像URLを設定）
+        const hamsterImages = [
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster01.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster02.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster03.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster04.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster05.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster06.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster07.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster08.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster09.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster10.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster11.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster12.jpg'
+        ];
+        
+        let cardBackImage = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/cardback.jpg';
+        
+        // 報酬画像データ
+        const rewardImages = [
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward01.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward02.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward03.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward04.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward05.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward06.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward07.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward08.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward09.jpg',
+            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward10.jpg'
+        ];
 
         // ゲーム状態
         let currentStage = 1;
@@ -688,10 +716,10 @@
             let rewardImage = '';
             let rewardName = '';
             
-            if (showReward) {
-                // 報酬画像をランダム選択（実際は報酬用画像を使用）
-                const rewardIndex = Math.floor(Math.random() * hamsterImages.length);
-                rewardImage = hamsterImages[rewardIndex] || '';
+            if (showReward && rewardImages.length > 0) {
+                // 報酬画像を使用（ステージに対応）
+                const rewardIndex = (currentStage - 1) % rewardImages.length;
+                rewardImage = rewardImages[rewardIndex];
                 rewardName = getRewardName(currentStage);
             }
             

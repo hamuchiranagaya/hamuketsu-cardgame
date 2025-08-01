@@ -1,4 +1,27 @@
-<!DOCTYPE html>
+    <div class="game-over" id="game-over">
+        <div class="game-over-card">
+            <h2>⏰ 時間切れ！ ⏰</h2>
+            <p>制限時間内にクリアできませんでした</p>
+            <div style="margin: 20px 0;">
+                <p>🌻 ひま種を1個使って再挑戦しますか？</p>
+                <p>残り: <span id="remaining-seeds"></span>個</p>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="retryWithSeed()" id="retry-btn">ひま種で再挑戦</button>
+                <button class="btn btn-secondary" onclick="giveUpStage()">諦める</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="reward-stock-modal" id="reward-stock-modal">
+        <div class="reward-stock-content">
+            <h2>🎁 報酬コレクション</h2>
+            <div class="reward-stock-grid" id="reward-stock-grid">
+                <!-- 報酬アイテムはJavaScriptで生成 -->
+            </div>
+            <button class="btn btn-primary" onclick="closeRewardStock()" style="margin-top: 20px; width: 100%;">閉じる</button>
+        </div>
+    </div><!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -276,28 +299,139 @@
             border-color: #4caf50;
         }
 
-        @media (max-width: 768px) {
-            .game-title {
-                font-size: 2rem;
-            }
-            
-            .game-info {
-                gap: 15px;
-            }
-            
-            .info-item {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
+        .stamina-info {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
 
-            .game-board {
-                gap: 8px;
-                padding: 15px;
-            }
+        .stamina-item {
+            background: rgba(255,255,255,0.9);
+            padding: 8px 16px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
 
-            .card {
-                max-width: 90px;
+        .game-timer {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .timer-display {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block;
+        }
+
+        .timer-warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .stage-btn.locked {
+            background: rgba(128,128,128,0.5);
+            color: #666;
+            cursor: not-allowed;
+            border-color: #999;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .game-over-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
             }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .reward-stock-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+        }
+
+        .reward-stock-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .reward-stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .reward-stock-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: #f5f5f5;
+        }
+
+        .reward-stock-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .reward-count {
+            font-weight: bold;
+            color: #333;
         }
 
         @media (max-width: 480px) {
@@ -345,10 +479,18 @@
 <body>
     <div class="game-header">
         <h1 class="game-title">🐹 ハムケツ神経衰弱 🐹</h1>
+        <div class="stamina-info">
+            <div class="stamina-item">🌻 ひま種: <span id="sunflower-count">3</span></div>
+            <div class="stamina-item" id="stamina-timer" style="display: none;">回復まで: <span id="recovery-time"></span></div>
+        </div>
     </div>
 
     <div class="game-board" id="game-board">
         <!-- カードはJavaScriptで生成 -->
+    </div>
+
+    <div class="game-timer" id="game-timer">
+        <div class="timer-display">残り時間: <span id="time-remaining">--</span>秒</div>
     </div>
 
     <div class="game-info">
@@ -365,6 +507,7 @@
     <div class="controls">
         <button class="btn btn-primary" onclick="shuffleCards()">シャッフル</button>
         <button class="btn btn-secondary" onclick="resetGame()">リセット</button>
+        <button class="btn btn-secondary" onclick="showRewardStock()">報酬一覧</button>
     </div>
 
     <div class="stage-complete" id="stage-complete">
@@ -428,19 +571,27 @@
         let completedStages = new Set();
         let startTime = 0;
         let gameTime = 0;
+        let timeLimit = 0;
+        let timer = null;
+        let remainingTime = 0;
+
+        // スタミナシステム
+        let sunflowerSeeds = 3;
+        let lastStaminaUpdate = Date.now();
+        let rewardStock = {};
 
         // ステージ設定（6枚から24枚まで、2枚ずつ増加）
         const stageConfig = {
-            1: { cards: 6, pairs: 3, rounds: 3 },
-            2: { cards: 8, pairs: 4, rounds: 3 },
-            3: { cards: 10, pairs: 5, rounds: 3 },
-            4: { cards: 12, pairs: 6, rounds: 3 },
-            5: { cards: 14, pairs: 7, rounds: 3 },
-            6: { cards: 16, pairs: 8, rounds: 3 },
-            7: { cards: 18, pairs: 9, rounds: 3 },
-            8: { cards: 20, pairs: 10, rounds: 3 },
-            9: { cards: 22, pairs: 11, rounds: 3 },
-            10: { cards: 24, pairs: 12, rounds: 3 }
+            1: { cards: 6, pairs: 3, rounds: 3, timeLimit: 15 },
+            2: { cards: 8, pairs: 4, rounds: 3, timeLimit: 15 },
+            3: { cards: 10, pairs: 5, rounds: 3, timeLimit: 30 },
+            4: { cards: 12, pairs: 6, rounds: 3, timeLimit: 30 },
+            5: { cards: 14, pairs: 7, rounds: 3, timeLimit: 45 },
+            6: { cards: 16, pairs: 8, rounds: 3, timeLimit: 45 },
+            7: { cards: 18, pairs: 9, rounds: 3, timeLimit: 60 },
+            8: { cards: 20, pairs: 10, rounds: 3, timeLimit: 60 },
+            9: { cards: 22, pairs: 11, rounds: 3, timeLimit: 75 },
+            10: { cards: 24, pairs: 12, rounds: 3, timeLimit: 90 }
         };
 
         // 画像を読み込む関数
@@ -503,8 +654,73 @@
 
         // ゲーム初期化
         function initializeGame() {
+            loadGameData();
+            updateStamina();
             createStageSelector();
             startStage(currentStage, currentRound);
+            setInterval(updateStamina, 60000); // 1分ごとにスタミナ更新
+        }
+
+        // ゲームデータ読み込み
+        function loadGameData() {
+            const savedData = localStorage.getItem('hamuketsu-game-data');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                sunflowerSeeds = data.sunflowerSeeds || 3;
+                lastStaminaUpdate = data.lastStaminaUpdate || Date.now();
+                rewardStock = data.rewardStock || {};
+                completedStages = new Set(data.completedStages || []);
+                currentStage = data.currentStage || 1;
+                currentRound = data.currentRound || 1;
+            }
+        }
+
+        // ゲームデータ保存
+        function saveGameData() {
+            const data = {
+                sunflowerSeeds: sunflowerSeeds,
+                lastStaminaUpdate: lastStaminaUpdate,
+                rewardStock: rewardStock,
+                completedStages: Array.from(completedStages),
+                currentStage: currentStage,
+                currentRound: currentRound
+            };
+            localStorage.setItem('hamuketsu-game-data', JSON.stringify(data));
+        }
+
+        // スタミナ更新
+        function updateStamina() {
+            const now = Date.now();
+            const timeDiff = now - lastStaminaUpdate;
+            const recoveredSeeds = Math.floor(timeDiff / (30 * 60 * 1000)); // 30分 = 1個回復
+            
+            if (recoveredSeeds > 0 && sunflowerSeeds < 3) {
+                sunflowerSeeds = Math.min(3, sunflowerSeeds + recoveredSeeds);
+                lastStaminaUpdate = now;
+                saveGameData();
+            }
+            
+            updateStaminaDisplay();
+        }
+
+        // スタミナ表示更新
+        function updateStaminaDisplay() {
+            document.getElementById('sunflower-count').textContent = sunflowerSeeds;
+            
+            const timerElement = document.getElementById('stamina-timer');
+            const recoveryTimeElement = document.getElementById('recovery-time');
+            
+            if (sunflowerSeeds < 3) {
+                const nextRecoveryTime = lastStaminaUpdate + (30 * 60 * 1000);
+                const timeUntilRecovery = Math.max(0, nextRecoveryTime - Date.now());
+                const minutes = Math.floor(timeUntilRecovery / 60000);
+                const seconds = Math.floor((timeUntilRecovery % 60000) / 1000);
+                
+                recoveryTimeElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                timerElement.style.display = 'block';
+            } else {
+                timerElement.style.display = 'none';
+            }
         }
 
         // ステージセレクター作成
@@ -517,12 +733,23 @@
                     const btn = document.createElement('button');
                     btn.className = 'stage-btn';
                     btn.textContent = `${stage}-${round}`;
-                    btn.onclick = () => startStage(stage, round);
                     
-                    if (completedStages.has(`${stage}-${round}`)) {
+                    // ステージロック判定
+                    const isLocked = !canAccessStage(stage, round);
+                    const isCompleted = completedStages.has(`${stage}-${round}`);
+                    const isActive = stage === currentStage && round === currentRound;
+                    
+                    if (isLocked) {
+                        btn.classList.add('locked');
+                        btn.onclick = () => alert('前のステージをクリアしてください！');
+                    } else {
+                        btn.onclick = () => startStage(stage, round);
+                    }
+                    
+                    if (isCompleted) {
                         btn.classList.add('completed');
                     }
-                    if (stage === currentStage && round === currentRound) {
+                    if (isActive) {
                         btn.classList.add('active');
                     }
                     
@@ -531,8 +758,33 @@
             }
         }
 
+        // ステージアクセス可能判定
+        function canAccessStage(stage, round) {
+            if (stage === 1 && round === 1) return true; // 最初のステージは常にアクセス可能
+            
+            // 前のラウンドがクリア済みか確認
+            if (round > 1) {
+                return completedStages.has(`${stage}-${round - 1}`);
+            }
+            
+            // 前のステージの最終ラウンドがクリア済みか確認
+            return completedStages.has(`${stage - 1}-3`);
+        }
+
         // ステージ開始
         function startStage(stage, round) {
+            if (!canAccessStage(stage, round)) {
+                alert('前のステージをクリアしてください！');
+                return;
+            }
+            
+            // クリア済みステージでない場合、ひま種チェック
+            const isCleared = completedStages.has(`${stage}-${round}`);
+            if (!isCleared && sunflowerSeeds <= 0) {
+                alert('🌻 ひま種が足りません！時間をおいて再挑戦してください。');
+                return;
+            }
+            
             currentStage = stage;
             currentRound = round;
             matchedPairs = 0;
@@ -541,10 +793,80 @@
             isChecking = false;
             startTime = Date.now();
             gameTime = 0;
+            timeLimit = stageConfig[stage].timeLimit;
+            remainingTime = timeLimit;
+            
+            // クリア済みでない場合のみひま種消費
+            if (!isCleared) {
+                sunflowerSeeds--;
+                saveGameData();
+                updateStaminaDisplay();
+            }
 
             updateUI();
             createGameBoard();
             createStageSelector();
+            startTimer();
+        }
+
+        // タイマー開始
+        function startTimer() {
+            clearInterval(timer);
+            const timerDisplay = document.getElementById('time-remaining');
+            const timerElement = document.querySelector('.timer-display');
+            
+            timer = setInterval(() => {
+                remainingTime = Math.max(0, timeLimit - Math.floor((Date.now() - startTime) / 1000));
+                timerDisplay.textContent = remainingTime;
+                
+                if (remainingTime <= 5) {
+                    timerElement.classList.add('timer-warning');
+                } else {
+                    timerElement.classList.remove('timer-warning');
+                }
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    gameOver();
+                }
+            }, 1000);
+            
+            timerDisplay.textContent = remainingTime;
+        }
+
+        // ゲームオーバー
+        function gameOver() {
+            isChecking = true; // カードクリック無効
+            document.getElementById('remaining-seeds').textContent = sunflowerSeeds;
+            
+            const retryBtn = document.getElementById('retry-btn');
+            if (sunflowerSeeds <= 0) {
+                retryBtn.disabled = true;
+                retryBtn.textContent = 'ひま種不足';
+            } else {
+                retryBtn.disabled = false;
+                retryBtn.textContent = 'ひま種で再挑戦';
+            }
+            
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        // ひま種で再挑戦
+        function retryWithSeed() {
+            if (sunflowerSeeds <= 0) {
+                alert('ひま種が足りません！');
+                return;
+            }
+            
+            document.getElementById('game-over').style.display = 'none';
+            startStage(currentStage, currentRound);
+        }
+
+        // ステージを諦める
+        function giveUpStage() {
+            document.getElementById('game-over').style.display = 'none';
+            // 最初のステージに戻る
+            startStage(1, 1);
         }
 
         // ゲームボード作成
@@ -707,9 +1029,16 @@
             const stageKey = `${currentStage}-${currentRound}`;
             completedStages.add(stageKey);
             gameTime = Math.floor((Date.now() - startTime) / 1000);
+            clearInterval(timer);
             
             // 花火エフェクト
             createFireworks();
+            
+            // x-3クリア時のスタミナ回復とボーナス
+            if (currentRound === 3) {
+                sunflowerSeeds = Math.min(sunflowerSeeds + 3, 3); // 最大3個まで
+                lastStaminaUpdate = Date.now();
+            }
             
             // 報酬は最終ラウンド（x-3）のみ表示
             const showReward = currentRound === 3;
@@ -721,7 +1050,17 @@
                 const rewardIndex = (currentStage - 1) % rewardImages.length;
                 rewardImage = rewardImages[rewardIndex];
                 rewardName = getRewardName(currentStage);
+                
+                // 報酬をストックに追加
+                if (!rewardStock[rewardName]) {
+                    rewardStock[rewardName] = 0;
+                }
+                rewardStock[rewardName]++;
             }
+            
+            // データ保存
+            saveGameData();
+            updateStaminaDisplay();
             
             // クリア画面表示
             document.getElementById('completed-stage').textContent = stageKey;
@@ -883,6 +1222,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 実際の画像を読み込む
             loadImages();
+            
+            // 1分ごとにスタミナ表示更新
+            setInterval(updateStaminaDisplay, 1000);
         });
     </script>
 </body>

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ハムケツ神経衰弱</title>
+    <title>はむケツ神経衰弱</title>
     
     <!-- PWA設定 -->
-    <link rel="manifest" href="data:application/json,{%22name%22:%22ハムケツ神経衰弱%22,%22short_name%22:%22ハムケツ%22,%22icons%22:[{%22src%22:%22https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22start_url%22:%22./%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23ff6b9d%22,%22background_color%22:%22%23fff%22}">
+    <link rel="manifest" href="data:application/json,{%22name%22:%22はむケツ神経衰弱%22,%22short_name%22:%22はむケツ%22,%22icons%22:[{%22src%22:%22https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22start_url%22:%22./%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23ff6b9d%22,%22background_color%22:%22%23fff%22}">
     <link rel="icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
     <link rel="apple-touch-icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
     <style>
@@ -28,7 +28,7 @@
 
         .game-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
@@ -40,6 +40,23 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .creator-link {
+            margin-bottom: 15px;
+        }
+
+        .creator-link a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .creator-link a:hover {
+            opacity: 1;
+            text-decoration: underline;
         }
 
         .stamina-info {
@@ -71,6 +88,7 @@
             backdrop-filter: blur(10px);
             max-width: 100%;
             width: 100%;
+            max-width: 400px;
         }
 
         .card {
@@ -82,7 +100,8 @@
             transform-style: preserve-3d;
             transition: transform 0.6s;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            max-width: 150px;
+            min-width: 90px;
+            max-width: 140px;
             justify-self: center;
         }
 
@@ -337,10 +356,13 @@
         .game-start-section {
             text-align: center;
             background: rgba(255,255,255,0.1);
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 350px;
+            width: 100%;
         }
 
         .game-icon {
@@ -392,13 +414,28 @@
                 font-size: 2rem;
             }
             
+            .creator-link a {
+                font-size: 12px;
+            }
+            
             .card {
+                min-width: 80px;
                 max-width: 120px;
             }
 
             .game-icon {
                 width: 100px;
                 height: 100px;
+            }
+
+            .game-start-section {
+                padding: 25px;
+                max-width: 320px;
+            }
+
+            .game-board {
+                max-width: 350px;
+                padding: 15px;
             }
         }
 
@@ -551,14 +588,28 @@
 
         @media (max-width: 480px) {
             .card {
+                min-width: 70px;
                 max-width: 100px;
+            }
+
+            .game-start-section {
+                padding: 20px;
+                max-width: 300px;
+            }
+
+            .game-board {
+                max-width: 320px;
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
     <div class="game-header">
-        <h1 class="game-title">🐹 ハムケツ神経衰弱 🐹</h1>
+        <h1 class="game-title">🐹 はむケツ神経衰弱 🐹</h1>
+        <div class="creator-link">
+            <a href="https://www.youtube.com/@hamuchira" target="_blank">by もっと！はむチラ長屋ch.</a>
+        </div>
         <div class="stamina-info">
             <div class="stamina-item">🌻 ひま種: <span id="sunflower-count">6/6</span></div>
             <div class="stamina-item" id="stamina-timer" style="display: none;">回復まで: <span id="recovery-time"></span></div>
@@ -686,9 +737,9 @@
         ];
 
         var rewardNames = [
-            'ひまわりの種', 'にんじんスティック', 'ハムシード', 
-            'プレミアムペレット', '特製おやつ', 'ゴールデンナッツ',
-            'レジェンドキャロット', 'ダイヤモンドシード', 'レア回し車', 'ミラクルハーブ'
+            'ぽんケツ', 'せくちーケツ', '黄金比ケツ', 
+            'シゴデキケツ', 'オレケツ', 'こんケツ',
+            'やばケツ', 'ふぃなケツ', 'そいケツ', 'ホワこふケツ'
         ];
 
         // PWAインストール関連
@@ -726,7 +777,8 @@
             7: { cards: 18, pairs: 9, rounds: 3, maxAttempts: 5 },
             8: { cards: 20, pairs: 10, rounds: 3, maxAttempts: 5 },
             9: { cards: 22, pairs: 11, rounds: 3, maxAttempts: 5 },
-            10: { cards: 24, pairs: 12, rounds: 3, maxAttempts: 5 }
+            10: { cards: 24, pairs: 12, rounds: 3, maxAttempts: 5 },
+            11: { cards: 20, pairs: 10, rounds: 1, maxAttempts: 10, isSpecial: true } // スペシャルステージ
         };
 
         // PWAインストール機能
@@ -841,6 +893,11 @@
         function canAccessStage(stage, round) {
             if (stage === 1 && round === 1) return true;
             
+            // スペシャルステージ（ステージ11）のアクセス条件
+            if (stage === 11) {
+                return hasAllRewards();
+            }
+            
             if (round > 1) {
                 return completedStages.indexOf(stage + '-' + (round - 1)) !== -1;
             }
@@ -848,10 +905,22 @@
             return completedStages.indexOf((stage - 1) + '-3') !== -1;
         }
 
+        function hasAllRewards() {
+            // 全報酬（1-10ステージクリア）を持っているかチェック
+            for (var i = 0; i < 10; i++) {
+                var rewardName = rewardNames[i];
+                if (!rewardStock[rewardName] || rewardStock[rewardName] === 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         function createStageSelector() {
             var selector = document.getElementById('stage-selector');
             selector.innerHTML = '';
             
+            // 通常ステージ（1-10）
             for (var stage = 1; stage <= 10; stage++) {
                 for (var round = 1; round <= 3; round++) {
                     var btn = document.createElement('button');
@@ -877,6 +946,40 @@
                     selector.appendChild(btn);
                 }
             }
+
+            // スペシャルステージ
+            var specialBtn = document.createElement('button');
+            specialBtn.className = 'stage-btn';
+            specialBtn.textContent = '🏆SP🏆';
+            specialBtn.style.background = 'linear-gradient(45deg, #ffd700, #ffb347)';
+            specialBtn.style.color = '#333';
+            specialBtn.style.fontWeight = 'bold';
+            
+            var canAccessSpecial = canAccessStage(11, 1);
+            var isSpecialCompleted = completedStages.indexOf('11-1') !== -1;
+            var isSpecialActive = currentStage === 11;
+            
+            if (!canAccessSpecial) {
+                specialBtn.classList.add('locked');
+                specialBtn.style.background = 'rgba(128,128,128,0.5)';
+                specialBtn.style.color = '#666';
+                specialBtn.onclick = function() { alert('全報酬を集めてスペシャルステージを解放しよう！'); };
+            } else {
+                specialBtn.onclick = function() { startStage(11, 1); };
+            }
+            
+            if (isSpecialCompleted) {
+                specialBtn.classList.add('completed');
+                specialBtn.style.background = 'linear-gradient(45deg, #4caf50, #45a049)';
+                specialBtn.style.color = 'white';
+            }
+            if (isSpecialActive) {
+                specialBtn.classList.add('active');
+                specialBtn.style.background = 'rgba(255,255,255,0.9)';
+                specialBtn.style.color = '#333';
+            }
+            
+            selector.appendChild(specialBtn);
         }
 
         function createGameBoard() {
@@ -887,22 +990,35 @@
             var cardCount = config.cards;
             var pairCount = config.pairs;
             
-            // グリッド設定
-            if (cardCount <= 8) {
-                board.style.gridTemplateColumns = 'repeat(' + (cardCount/2) + ', 1fr)';
-            } else if (cardCount <= 12) {
-                board.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            // 一画面に収まるように列数を決定
+            var columns;
+            if (cardCount <= 9) {
+                // 6枚(2行) or 8枚(3行) or 9枚(3行) → 3列
+                columns = 3;
             } else if (cardCount <= 16) {
-                board.style.gridTemplateColumns = 'repeat(8, 1fr)';
+                // 10-16枚 → 4列 (最大4行)
+                columns = 4;
             } else {
-                board.style.gridTemplateColumns = 'repeat(10, 1fr)';
+                // 18枚以上 → 4列 (5行以上になるが仕方なし)
+                columns = 4;
             }
+            
+            board.style.gridTemplateColumns = 'repeat(' + columns + ', 1fr)';
 
             // カードペア作成
             var cardPairs = [];
-            for (var i = 0; i < pairCount; i++) {
-                var imageIndex = i % hamsterImages.length;
-                cardPairs.push(imageIndex, imageIndex);
+            
+            // スペシャルステージは報酬カードを使用
+            if (currentStage === 11) {
+                for (var i = 0; i < pairCount; i++) {
+                    cardPairs.push(i, i);
+                }
+            } else {
+                // 通常ステージはハムスター画像を使用
+                for (var i = 0; i < pairCount; i++) {
+                    var imageIndex = i % hamsterImages.length;
+                    cardPairs.push(imageIndex, imageIndex);
+                }
             }
 
             shuffleArray(cardPairs);
@@ -937,9 +1053,17 @@
                 cardBack.style.color = 'white';
             }
 
-            if (hamsterImages[imageIndex]) {
+            // スペシャルステージは報酬画像、通常ステージはハムスター画像
+            var imageUrl;
+            if (currentStage === 11) {
+                imageUrl = rewardImages[imageIndex];
+            } else {
+                imageUrl = hamsterImages[imageIndex];
+            }
+
+            if (imageUrl) {
                 var frontImg = document.createElement('img');
-                frontImg.src = hamsterImages[imageIndex];
+                frontImg.src = imageUrl;
                 frontImg.className = 'card-image';
                 cardFront.appendChild(frontImg);
             }
@@ -1007,7 +1131,10 @@
             // 花火エフェクト
             createFireworks();
             
-            if (currentRound === 3) {
+            if (currentStage === 11) {
+                // スペシャルステージクリア
+                // 特別な報酬は無し、達成感のみ
+            } else if (currentRound === 3) {
                 maxSunflowerSeeds += 3;
                 sunflowerSeeds = Math.min(sunflowerSeeds + 3, maxSunflowerSeeds);
                 lastStaminaUpdate = Date.now();
@@ -1023,10 +1150,16 @@
             updateStaminaDisplay();
             
             // クリア画面表示
-            document.getElementById('completed-stage').textContent = stageKey;
+            if (currentStage === 11) {
+                document.getElementById('completed-stage').textContent = 'スペシャルステージ';
+            } else {
+                document.getElementById('completed-stage').textContent = stageKey;
+            }
             document.getElementById('clear-time').textContent = gameTime;
             
-            if (currentRound === 3) {
+            if (currentStage === 11) {
+                document.getElementById('reward-section').style.display = 'none';
+            } else if (currentRound === 3) {
                 document.getElementById('reward-section').style.display = 'block';
                 document.getElementById('reward-image').src = rewardImages[currentStage - 1];
                 document.getElementById('reward-name').textContent = rewardNames[currentStage - 1];
@@ -1040,12 +1173,21 @@
         function nextStage() {
             document.getElementById('stage-complete').style.display = 'none';
             
-            if (currentRound < 3) {
+            if (currentStage === 11) {
+                alert('🎉 スペシャルステージクリア！真のマスターです！ 🎉');
+                startStage(1, 1); // 最初に戻る
+            } else if (currentRound < 3) {
                 startStage(currentStage, currentRound + 1);
             } else if (currentStage < 10) {
                 startStage(currentStage + 1, 1);
             } else {
-                alert('🎉 全ステージクリア！おめでとうございます！ 🎉');
+                // 全ステージクリア後、スペシャルステージがあるかチェック
+                if (hasAllRewards()) {
+                    alert('🎉 全ステージクリア！スペシャルステージが解放されました！ 🏆');
+                    startStage(11, 1);
+                } else {
+                    alert('🎉 全ステージクリア！おめでとうございます！ 🎉');
+                }
             }
         }
 
@@ -1071,14 +1213,16 @@
         }
 
         function shareToTwitter() {
-            var showReward = currentRound === 3;
+            var showReward = currentRound === 3 || (currentStage === 11);
             var text;
             
-            if (showReward) {
+            if (currentStage === 11) {
+                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆 #はむケツ神経衰弱 #ハムスター #はむチラ';
+            } else if (showReward) {
                 var rewardName = rewardNames[currentStage - 1];
-                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #ハムケツ神経衰弱 #ハムスター #はむちら';
+                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #はむケツ神経衰弱 #ハムスター #はむチラ';
             } else {
-                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #ハムケツ神経衰弱 #ハムスター #はむちら';
+                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #はむケツ神経衰弱 #ハムスター #はむチラ';
             }
             
             var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
@@ -1086,10 +1230,12 @@
         }
 
         function shareToLine() {
-            var showReward = currentRound === 3;
+            var showReward = currentRound === 3 || (currentStage === 11);
             var text;
             
-            if (showReward) {
+            if (currentStage === 11) {
+                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆';
+            } else if (showReward) {
                 var rewardName = rewardNames[currentStage - 1];
                 text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹';
             } else {
@@ -1157,7 +1303,11 @@
         }
 
         function updateUI() {
-            document.getElementById('current-stage').textContent = currentStage + '-' + currentRound;
+            if (currentStage === 11) {
+                document.getElementById('current-stage').textContent = 'スペシャル';
+            } else {
+                document.getElementById('current-stage').textContent = currentStage + '-' + currentRound;
+            }
             document.getElementById('card-count').textContent = stageConfig[currentStage].cards;
             document.getElementById('pairs-found').textContent = matchedPairs;
             document.getElementById('total-pairs').textContent = stageConfig[currentStage].pairs;

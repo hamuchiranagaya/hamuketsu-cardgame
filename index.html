@@ -481,7 +481,7 @@
 
         .reward-image {
             width: 200px;
-            height: 250px;
+            height: 200px;
             object-fit: cover;
             border-radius: 15px;
             margin: 20px 0;
@@ -668,6 +668,16 @@
         </div>
     </div>
 
+    <!-- 報酬詳細モーダル -->
+    <div class="modal" id="reward-detail-modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 id="reward-detail-name" style="margin-bottom: 20px;"></h3>
+            <img id="reward-detail-image" src="" alt="報酬詳細" style="width: 250px; height: 250px; object-fit: cover; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <p id="reward-detail-count" style="margin: 20px 0; font-size: 18px; font-weight: bold;"></p>
+            <button class="btn btn-primary" id="close-reward-detail">閉じる</button>
+        </div>
+    </div>
+
     <!-- ステージクリア演出 -->
     <div class="stage-complete" id="stage-complete">
         <div class="complete-card">
@@ -830,6 +840,7 @@
             document.getElementById('collection-btn').addEventListener('click', showCollection);
             document.getElementById('close-reward-list').addEventListener('click', closeRewardList);
             document.getElementById('close-collection').addEventListener('click', closeCollection);
+            document.getElementById('close-reward-detail').addEventListener('click', closeRewardDetail);
             document.getElementById('retry-btn').addEventListener('click', retryWithSeed);
             document.getElementById('give-up-btn').addEventListener('click', giveUpStage);
             document.getElementById('next-stage-btn').addEventListener('click', nextStage);
@@ -1478,21 +1489,32 @@
                 var item = document.createElement('div');
                 item.className = 'reward-item';
                 
+                var img = document.createElement('img');
+                
                 if (count > 0) {
+                    // 手に入れた報酬は実際の画像を表示
+                    img.src = rewardImages[i] || '';
                     item.style.opacity = '1';
                     item.style.cursor = 'pointer';
+                    
+                    // クリックで拡大表示
+                    item.onclick = (function(index, rewardName, rewardCount) {
+                        return function() {
+                            showRewardDetail(index, rewardName, rewardCount);
+                        };
+                    })(i, rewardNames[i], count);
                 } else {
-                    item.style.opacity = '0.3';
+                    // 手に入れていない報酬はカードバック画像を表示
+                    img.src = cardBackImage || '';
+                    item.style.opacity = '0.6';
                     item.style.cursor = 'default';
                 }
                 
-                var img = document.createElement('img');
-                img.src = rewardImages[i] || '';
                 img.alt = rewardNames[i];
                 
                 var nameDiv = document.createElement('div');
                 nameDiv.className = 'reward-name';
-                nameDiv.textContent = rewardNames[i];
+                nameDiv.textContent = rewardNames[i]; // 報酬名は常に表示
                 
                 var countDiv = document.createElement('div');
                 countDiv.className = 'reward-count';
@@ -1505,6 +1527,20 @@
             }
             
             modal.style.display = 'flex';
+        }
+
+        function showRewardDetail(index, name, count) {
+            var modal = document.getElementById('reward-detail-modal');
+            
+            document.getElementById('reward-detail-name').textContent = name;
+            document.getElementById('reward-detail-image').src = rewardImages[index];
+            document.getElementById('reward-detail-count').textContent = '所持数: ×' + count;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeRewardDetail() {
+            document.getElementById('reward-detail-modal').style.display = 'none';
         }
 
         function closeCollection() {

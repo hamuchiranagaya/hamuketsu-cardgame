@@ -267,7 +267,6 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
-        /* モーダル系 */
         .modal {
             position: fixed;
             top: 0;
@@ -329,97 +328,166 @@
             color: #333;
         }
 
-        .reward-preview {
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .card {
+                max-width: 120px;
+            }
+        }
+
+        .stage-complete {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .complete-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: celebrateIn 0.8s ease-out;
+        }
+
+        @keyframes celebrateIn {
+            0% {
+                transform: scale(0.5) rotate(-10deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .complete-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .reward-image {
+            width: 200px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .reward-text {
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .x-btn {
+            background: #000000;
+        }
+
+        .line-btn {
+            background: #00c300;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: firework 1s ease-out forwards;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(10);
+                opacity: 0;
+            }
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1001;
         }
 
-        .reward-preview-content {
-            position: relative;
-            max-width: 90vw;
-            max-height: 90vh;
-        }
-
-        .reward-preview img {
-            width: 100%;
-            height: auto;
+        .game-over-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.8s ease-out;
         }
 
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .game-title {
-                font-size: 2rem;
+        @keyframes slideIn {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
             }
-            
-            .game-info {
-                gap: 15px;
-            }
-            
-            .info-item {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-
-            .game-board {
-                gap: 10px;
-                padding: 15px;
-            }
-
-            .card {
-                max-width: 120px;
-            }
-
-            .stamina-info {
-                gap: 10px;
-            }
-
-            .stamina-item {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .attempts-display {
-                font-size: 16px;
-                padding: 10px 20px;
+            100% {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
         @media (max-width: 480px) {
             .card {
                 max-width: 100px;
-            }
-            
-            .game-board {
-                gap: 8px;
-                padding: 10px;
-            }
-
-            .stamina-info {
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
             }
         }
     </style>
@@ -428,17 +496,18 @@
     <div class="game-header">
         <h1 class="game-title">🐹 ハムケツ神経衰弱 🐹</h1>
         <div class="stamina-info">
-            <div class="stamina-item">🌻 ひま種: <span id="sunflower-count">3/3</span></div>
+            <div class="stamina-item">🌻 ひま種: <span id="sunflower-count">6/6</span></div>
             <div class="stamina-item" id="stamina-timer" style="display: none;">回復まで: <span id="recovery-time"></span></div>
         </div>
     </div>
 
-    <div class="game-board" id="game-board">
-        <!-- カードはJavaScriptで生成 -->
+    <div class="game-start-section" id="game-start-section" style="text-align: center;">
+        <h2 style="color: white; margin-bottom: 20px;">🎮 ゲームを開始しましょう！</h2>
+        <button class="game-start-btn" id="game-start-btn">ゲームスタート！</button>
     </div>
 
-    <div class="game-start-section" id="game-start-section" style="text-align: center;">
-        <button class="game-start-btn" id="game-start-btn">ゲームスタート！</button>
+    <div class="game-board" id="game-board" style="display: none;">
+        <!-- カードはJavaScriptで生成 -->
     </div>
 
     <div class="attempts-counter" id="attempts-counter" style="display: none;">
@@ -457,8 +526,6 @@
     </div>
 
     <div class="controls">
-        <button class="btn btn-primary" id="shuffle-btn">シャッフル</button>
-        <button class="btn btn-secondary" id="reset-btn">リセット</button>
         <button class="btn btn-secondary" id="reward-list-btn">クリア報酬一覧</button>
         <button class="btn btn-secondary" id="collection-btn">報酬図鑑</button>
     </div>
@@ -467,10 +534,8 @@
     <div class="modal" id="reward-list-modal">
         <div class="modal-content">
             <h2>🎁 クリア報酬一覧</h2>
-            <div class="reward-grid" id="reward-list-grid">
-                <!-- 報酬一覧はJavaScriptで生成 -->
-            </div>
-            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" onclick="closeRewardList()">閉じる</button>
+            <div class="reward-grid" id="reward-list-grid"></div>
+            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" id="close-reward-list">閉じる</button>
         </div>
     </div>
 
@@ -478,24 +543,50 @@
     <div class="modal" id="collection-modal">
         <div class="modal-content">
             <h2>📚 報酬図鑑</h2>
-            <div class="reward-grid" id="collection-grid">
-                <!-- コレクションはJavaScriptで生成 -->
-            </div>
-            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" onclick="closeCollection()">閉じる</button>
+            <div class="reward-grid" id="collection-grid"></div>
+            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" id="close-collection">閉じる</button>
         </div>
     </div>
 
-    <!-- 報酬プレビューモーダル -->
-    <div class="reward-preview" id="reward-preview">
-        <div class="reward-preview-content">
-            <button class="close-btn" onclick="closeRewardPreview()">×</button>
-            <img id="preview-image" src="" alt="報酬プレビュー">
+    <!-- ステージクリア演出 -->
+    <div class="stage-complete" id="stage-complete">
+        <div class="complete-card">
+            <h2 class="complete-title">🎉 おめでとう！ 🎉</h2>
+            <p class="reward-text">ステージ <span id="completed-stage"></span> を<span id="clear-time"></span>秒でクリア！</p>
+            <div id="reward-section">
+                <img class="reward-image" id="reward-image" src="" alt="報酬">
+                <p class="reward-text">報酬「<span id="reward-name"></span>」を手に入れた！</p>
+            </div>
+            <div class="share-buttons">
+                <button class="share-btn x-btn" id="share-twitter">Xでシェア</button>
+                <button class="share-btn line-btn" id="share-line">LINEでシェア</button>
+            </div>
+            <button class="btn btn-primary" id="next-stage-btn" style="margin-top: 20px;">次のステージへ</button>
         </div>
     </div>
+
+    <!-- ゲームオーバー画面 -->
+    <div class="game-over" id="game-over">
+        <div class="game-over-card">
+            <h2>😵 試行回数オーバー！ 😵</h2>
+            <p>制限回数内にクリアできませんでした</p>
+            <div style="margin: 20px 0;">
+                <p>🌻 ひま種を1個使って試行回数を5回追加しますか？</p>
+                <p>残り: <span id="remaining-seeds"></span>個</p>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-primary" id="retry-btn">ひま種で+5回</button>
+                <button class="btn btn-secondary" id="give-up-btn">諦める</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 花火エフェクト -->
+    <div class="fireworks" id="fireworks"></div>
 
     <script>
-        // 画像データ
-        const hamsterImages = [
+        // グローバル変数
+        var hamsterImages = [
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster01.jpg',
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster02.jpg',
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster03.jpg',
@@ -510,9 +601,9 @@
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster12.jpg'
         ];
         
-        let cardBackImage = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/cardback.jpg';
+        var cardBackImage = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/cardback.jpg';
         
-        const rewardImages = [
+        var rewardImages = [
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward01.jpg',
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward02.jpg',
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward03.jpg',
@@ -525,28 +616,34 @@
             'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward10.jpg'
         ];
 
+        var rewardNames = [
+            'ひまわりの種', 'にんじんスティック', 'ハムシード', 
+            'プレミアムペレット', '特製おやつ', 'ゴールデンナッツ',
+            'レジェンドキャロット', 'ダイヤモンドシード', 'レア回し車', 'ミラクルチーズ'
+        ];
+
         // ゲーム状態
-        let currentStage = 1;
-        let currentRound = 1;
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let attempts = 0;
-        let maxAttempts = 5;
-        let remainingAttempts = 5;
-        let isChecking = false;
-        let completedStages = new Set();
-        let startTime = 0;
-        let gameTime = 0;
-        let gameStarted = false;
+        var currentStage = 1;
+        var currentRound = 1;
+        var flippedCards = [];
+        var matchedPairs = 0;
+        var attempts = 0;
+        var maxAttempts = 5;
+        var remainingAttempts = 5;
+        var isChecking = false;
+        var completedStages = [];
+        var startTime = 0;
+        var gameTime = 0;
+        var gameStarted = false;
 
         // スタミナシステム
-        let sunflowerSeeds = 3;
-        let maxSunflowerSeeds = 3;
-        let lastStaminaUpdate = Date.now();
-        let rewardStock = {};
+        var sunflowerSeeds = 6;
+        var maxSunflowerSeeds = 6;
+        var lastStaminaUpdate = Date.now();
+        var rewardStock = {};
 
         // ステージ設定
-        const stageConfig = {
+        var stageConfig = {
             1: { cards: 6, pairs: 3, rounds: 3, maxAttempts: 5 },
             2: { cards: 8, pairs: 4, rounds: 3, maxAttempts: 5 },
             3: { cards: 10, pairs: 5, rounds: 3, maxAttempts: 5 },
@@ -559,120 +656,37 @@
             10: { cards: 24, pairs: 12, rounds: 3, maxAttempts: 5 }
         };
 
-        // 報酬名リスト
-        const rewardNames = [
-            'ひまわりの種', 'にんじんスティック', 'ハムシード', 
-            'プレミアムペレット', '特製おやつ', 'ゴールデンナッツ',
-            'レジェンドキャロット', 'ダイヤモンドシード', 'レア回し車', 'ミラクルチーズ'
-        ];
-
-        // イベントリスナー設定
-        document.addEventListener('DOMContentLoaded', function() {
+        // 初期化
+        function init() {
+            console.log('ゲーム初期化開始');
             loadGameData();
             updateStamina();
             createStageSelector();
             startStage(currentStage, currentRound);
             setInterval(updateStamina, 60000);
             setInterval(updateStaminaDisplay, 1000);
-
-            // ボタンイベント設定（確実に要素が存在してから）
-            setTimeout(() => {
-                const startBtn = document.getElementById('game-start-btn');
-                const shuffleBtn = document.getElementById('shuffle-btn');
-                const resetBtn = document.getElementById('reset-btn');
-                const rewardListBtn = document.getElementById('reward-list-btn');
-                const collectionBtn = document.getElementById('collection-btn');
-
-                if (startBtn) startBtn.onclick = startGame;
-                if (shuffleBtn) shuffleBtn.onclick = shuffleCards;
-                if (resetBtn) resetBtn.onclick = resetGame;
-                if (rewardListBtn) rewardListBtn.onclick = showRewardList;
-                if (collectionBtn) collectionBtn.onclick = showCollection;
-                
-                console.log('イベントリスナー設定完了');
-            }, 100);
-        });
-
-        // ゲームデータ管理
-        function loadGameData() {
-            const savedData = localStorage.getItem('hamuketsu-game-data');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                sunflowerSeeds = data.sunflowerSeeds || 3;
-                maxSunflowerSeeds = data.maxSunflowerSeeds || 3;
-                lastStaminaUpdate = data.lastStaminaUpdate || Date.now();
-                rewardStock = data.rewardStock || {};
-                completedStages = new Set(data.completedStages || []);
-                currentStage = data.currentStage || 1;
-                currentRound = data.currentRound || 1;
-            }
+            
+            // イベントリスナー設定
+            setupEventListeners();
         }
 
-        function saveGameData() {
-            const data = {
-                sunflowerSeeds: sunflowerSeeds,
-                maxSunflowerSeeds: maxSunflowerSeeds,
-                lastStaminaUpdate: lastStaminaUpdate,
-                rewardStock: rewardStock,
-                completedStages: Array.from(completedStages),
-                currentStage: currentStage,
-                currentRound: currentRound
-            };
-            localStorage.setItem('hamuketsu-game-data', JSON.stringify(data));
+        function setupEventListeners() {
+            document.getElementById('game-start-btn').addEventListener('click', startGame);
+            document.getElementById('reward-list-btn').addEventListener('click', showRewardList);
+            document.getElementById('collection-btn').addEventListener('click', showCollection);
+            document.getElementById('close-reward-list').addEventListener('click', closeRewardList);
+            document.getElementById('close-collection').addEventListener('click', closeCollection);
+            document.getElementById('retry-btn').addEventListener('click', retryWithSeed);
+            document.getElementById('give-up-btn').addEventListener('click', giveUpStage);
+            document.getElementById('next-stage-btn').addEventListener('click', nextStage);
+            document.getElementById('share-twitter').addEventListener('click', shareToTwitter);
+            document.getElementById('share-line').addEventListener('click', shareToLine);
         }
 
-        // スタミナ管理
-        function updateStamina() {
-            const now = Date.now();
-            const timeDiff = now - lastStaminaUpdate;
-            const recoveredSeeds = Math.floor(timeDiff / (30 * 60 * 1000));
-            
-            if (recoveredSeeds > 0 && sunflowerSeeds < maxSunflowerSeeds) {
-                sunflowerSeeds = Math.min(maxSunflowerSeeds, sunflowerSeeds + recoveredSeeds);
-                lastStaminaUpdate = now;
-                saveGameData();
-            }
-            
-            updateStaminaDisplay();
-        }
-
-        function updateStaminaDisplay() {
-            document.getElementById('sunflower-count').textContent = `${sunflowerSeeds}/${maxSunflowerSeeds}`;
-            
-            const timerElement = document.getElementById('stamina-timer');
-            const recoveryTimeElement = document.getElementById('recovery-time');
-            
-            if (sunflowerSeeds < maxSunflowerSeeds) {
-                const nextRecoveryTime = lastStaminaUpdate + (30 * 60 * 1000);
-                const timeUntilRecovery = Math.max(0, nextRecoveryTime - Date.now());
-                const minutes = Math.floor(timeUntilRecovery / 60000);
-                const seconds = Math.floor((timeUntilRecovery % 60000) / 1000);
-                
-                recoveryTimeElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                timerElement.style.display = 'block';
-            } else {
-                timerElement.style.display = 'none';
-            }
-            
-            updateStartButton();
-        }
-
-        function updateStartButton() {
-            const startBtn = document.getElementById('game-start-btn');
-            const isCleared = completedStages.has(`${currentStage}-${currentRound}`);
-            
-            if (!isCleared && sunflowerSeeds <= 0) {
-                startBtn.disabled = true;
-                startBtn.textContent = 'ひま種不足';
-            } else {
-                startBtn.disabled = false;
-                startBtn.textContent = 'ゲームスタート！';
-            }
-        }
-
-        // ゲーム制御
+        // ゲーム開始
         function startGame() {
-            const isCleared = completedStages.has(`${currentStage}-${currentRound}`);
+            console.log('ゲーム開始');
+            var isCleared = completedStages.indexOf(currentStage + '-' + currentRound) !== -1;
             
             if (!isCleared && sunflowerSeeds <= 0) {
                 alert('🌻 ひま種が足りません！時間をおいて再挑戦してください。');
@@ -689,11 +703,13 @@
             startTime = Date.now();
             
             document.getElementById('game-start-section').style.display = 'none';
+            document.getElementById('game-board').style.display = 'grid';
             document.getElementById('attempts-counter').style.display = 'block';
             
             updateAttemptsDisplay();
         }
 
+        // ステージ開始
         function startStage(stage, round) {
             if (!canAccessStage(stage, round)) {
                 alert('前のステージをクリアしてください！');
@@ -715,6 +731,7 @@
             createStageSelector();
             
             document.getElementById('game-start-section').style.display = 'block';
+            document.getElementById('game-board').style.display = 'none';
             document.getElementById('attempts-counter').style.display = 'none';
             updateStartButton();
         }
@@ -723,31 +740,33 @@
             if (stage === 1 && round === 1) return true;
             
             if (round > 1) {
-                return completedStages.has(`${stage}-${round - 1}`);
+                return completedStages.indexOf(stage + '-' + (round - 1)) !== -1;
             }
             
-            return completedStages.has(`${stage - 1}-3`);
+            return completedStages.indexOf((stage - 1) + '-3') !== -1;
         }
 
         function createStageSelector() {
-            const selector = document.getElementById('stage-selector');
+            var selector = document.getElementById('stage-selector');
             selector.innerHTML = '';
             
-            for (let stage = 1; stage <= 10; stage++) {
-                for (let round = 1; round <= 3; round++) {
-                    const btn = document.createElement('button');
+            for (var stage = 1; stage <= 10; stage++) {
+                for (var round = 1; round <= 3; round++) {
+                    var btn = document.createElement('button');
                     btn.className = 'stage-btn';
-                    btn.textContent = `${stage}-${round}`;
+                    btn.textContent = stage + '-' + round;
                     
-                    const isLocked = !canAccessStage(stage, round);
-                    const isCompleted = completedStages.has(`${stage}-${round}`);
-                    const isActive = stage === currentStage && round === currentRound;
+                    var isLocked = !canAccessStage(stage, round);
+                    var isCompleted = completedStages.indexOf(stage + '-' + round) !== -1;
+                    var isActive = stage === currentStage && round === currentRound;
                     
                     if (isLocked) {
                         btn.classList.add('locked');
-                        btn.addEventListener('click', () => alert('前のステージをクリアしてください！'));
+                        btn.onclick = function() { alert('前のステージをクリアしてください！'); };
                     } else {
-                        btn.addEventListener('click', () => startStage(stage, round));
+                        btn.onclick = (function(s, r) {
+                            return function() { startStage(s, r); };
+                        })(stage, round);
                     }
                     
                     if (isCompleted) btn.classList.add('completed');
@@ -759,43 +778,501 @@
         }
 
         function createGameBoard() {
-            const board = document.getElementById('game-board');
+            var board = document.getElementById('game-board');
             board.innerHTML = '';
             
-            const config = stageConfig[currentStage];
-            const cardCount = config.cards;
-            const pairCount = config.pairs;
+            var config = stageConfig[currentStage];
+            var cardCount = config.cards;
+            var pairCount = config.pairs;
             
-            // レスポンシブグリッド設定
+            // グリッド設定
             if (cardCount <= 8) {
-                board.style.gridTemplateColumns = `repeat(${cardCount/2}, 1fr)`;
-                board.style.maxWidth = `${cardCount/2 * 170}px`;
+                board.style.gridTemplateColumns = 'repeat(' + (cardCount/2) + ', 1fr)';
             } else if (cardCount <= 12) {
                 board.style.gridTemplateColumns = 'repeat(6, 1fr)';
-                board.style.maxWidth = '1020px';
             } else if (cardCount <= 16) {
                 board.style.gridTemplateColumns = 'repeat(8, 1fr)';
-                board.style.maxWidth = '1360px';
-            } else if (cardCount <= 20) {
-                board.style.gridTemplateColumns = 'repeat(10, 1fr)';
-                board.style.maxWidth = '1700px';
             } else {
-                board.style.gridTemplateColumns = 'repeat(12, 1fr)';
-                board.style.maxWidth = '2040px';
+                board.style.gridTemplateColumns = 'repeat(10, 1fr)';
             }
 
-            const screenWidth = window.innerWidth;
-            if (screenWidth <= 480) {
-                if (cardCount <= 6) {
-                    board.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                } else if (cardCount <= 12) {
-                    board.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                } else if (cardCount <= 20) {
-                    board.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            // カードペア作成
+            var cardPairs = [];
+            for (var i = 0; i < pairCount; i++) {
+                var imageIndex = i % hamsterImages.length;
+                cardPairs.push(imageIndex, imageIndex);
+            }
+
+            shuffleArray(cardPairs);
+
+            for (var i = 0; i < cardPairs.length; i++) {
+                var card = createCard(cardPairs[i], i);
+                board.appendChild(card);
+            }
+        }
+
+        function createCard(imageIndex, cardIndex) {
+            var card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.imageIndex = imageIndex;
+            card.dataset.cardIndex = cardIndex;
+            card.onclick = function() { flipCard(card); };
+
+            var cardBack = document.createElement('div');
+            cardBack.className = 'card-face card-back';
+            
+            var cardFront = document.createElement('div');
+            cardFront.className = 'card-face card-front';
+
+            if (cardBackImage) {
+                var backImg = document.createElement('img');
+                backImg.src = cardBackImage;
+                backImg.className = 'back-card-image';
+                cardBack.appendChild(backImg);
+            } else {
+                cardBack.textContent = '?';
+                cardBack.style.fontSize = '3rem';
+                cardBack.style.color = 'white';
+            }
+
+            if (hamsterImages[imageIndex]) {
+                var frontImg = document.createElement('img');
+                frontImg.src = hamsterImages[imageIndex];
+                frontImg.className = 'card-image';
+                cardFront.appendChild(frontImg);
+            }
+
+            card.appendChild(cardBack);
+            card.appendChild(cardFront);
+
+            return card;
+        }
+
+        function flipCard(card) {
+            if (!gameStarted || isChecking || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                return;
+            }
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                attempts++;
+                updateUI();
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isChecking = true;
+            var card1 = flippedCards[0];
+            var card2 = flippedCards[1];
+            
+            setTimeout(function() {
+                if (card1.dataset.imageIndex === card2.dataset.imageIndex) {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    matchedPairs++;
+                    
+                    if (matchedPairs === stageConfig[currentStage].pairs) {
+                        setTimeout(function() { completeStage(); }, 500);
+                    }
                 } else {
-                    board.style.gridTemplateColumns = 'repeat(6, 1fr)';
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    
+                    remainingAttempts--;
+                    updateAttemptsDisplay();
+                    
+                    if (remainingAttempts <= 0) {
+                        setTimeout(function() { gameOver(); }, 500);
+                    }
                 }
-                board.style.maxWidth = '90vw';
-            } else if (screenWidth <= 768) {
-                if (cardCount <= 8) {
-                    board.style.gridTemplateColumns = 'repeat
+                
+                flippedCards = [];
+                isChecking = false;
+                updateUI();
+            }, 1000);
+        }
+
+        function completeStage() {
+            var stageKey = currentStage + '-' + currentRound;
+            if (completedStages.indexOf(stageKey) === -1) {
+                completedStages.push(stageKey);
+            }
+            gameTime = Math.floor((Date.now() - startTime) / 1000);
+            
+            // 花火エフェクト
+            createFireworks();
+            
+            if (currentRound === 3) {
+                maxSunflowerSeeds += 3;
+                sunflowerSeeds = Math.min(sunflowerSeeds + 3, maxSunflowerSeeds);
+                lastStaminaUpdate = Date.now();
+                
+                var rewardName = rewardNames[currentStage - 1];
+                if (!rewardStock[rewardName]) {
+                    rewardStock[rewardName] = 0;
+                }
+                rewardStock[rewardName]++;
+            }
+            
+            saveGameData();
+            updateStaminaDisplay();
+            
+            // クリア画面表示
+            document.getElementById('completed-stage').textContent = stageKey;
+            document.getElementById('clear-time').textContent = gameTime;
+            
+            if (currentRound === 3) {
+                document.getElementById('reward-section').style.display = 'block';
+                document.getElementById('reward-image').src = rewardImages[currentStage - 1];
+                document.getElementById('reward-name').textContent = rewardNames[currentStage - 1];
+            } else {
+                document.getElementById('reward-section').style.display = 'none';
+            }
+            
+            document.getElementById('stage-complete').style.display = 'flex';
+        }
+
+        function nextStage() {
+            document.getElementById('stage-complete').style.display = 'none';
+            
+            if (currentRound < 3) {
+                startStage(currentStage, currentRound + 1);
+            } else if (currentStage < 10) {
+                startStage(currentStage + 1, 1);
+            } else {
+                alert('🎉 全ステージクリア！おめでとうございます！ 🎉');
+            }
+        }
+
+        function createFireworks() {
+            var fireworks = document.getElementById('fireworks');
+            
+            for (var i = 0; i < 50; i++) {
+                setTimeout(function(index) {
+                    var firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.background = 'hsl(' + Math.random() * 360 + ', 70%, 60%)';
+                    fireworks.appendChild(firework);
+                    
+                    setTimeout(function() {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 1000);
+                }, i * 100);
+            }
+        }
+
+        function shareToTwitter() {
+            var showReward = currentRound === 3;
+            var text;
+            
+            if (showReward) {
+                var rewardName = rewardNames[currentStage - 1];
+                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #ハムケツ神経衰弱 #ハムスター #はむチラ';
+            } else {
+                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #ハムケツ神経衰弱 #ハムスター #はむチラ';
+            }
+            
+            var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+            window.open(url, '_blank');
+        }
+
+        function shareToLine() {
+            var showReward = currentRound === 3;
+            var text;
+            
+            if (showReward) {
+                var rewardName = rewardNames[currentStage - 1];
+                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹';
+            } else {
+                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨';
+            }
+            
+            var url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(text);
+            window.open(url, '_blank');
+        }
+
+        function gameOver() {
+            document.getElementById('remaining-seeds').textContent = sunflowerSeeds;
+            
+            var retryBtn = document.getElementById('retry-btn');
+            if (sunflowerSeeds <= 0) {
+                retryBtn.disabled = true;
+                retryBtn.textContent = 'ひま種不足';
+                retryBtn.classList.add('retry-btn');
+            } else {
+                retryBtn.disabled = false;
+                retryBtn.textContent = 'ひま種で+5回';
+                retryBtn.classList.remove('retry-btn');
+            }
+            
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        function retryWithSeed() {
+            if (sunflowerSeeds <= 0) {
+                alert('ひま種が足りません！');
+                return;
+            }
+            
+            // ひま種消費して試行回数+5回
+            sunflowerSeeds--;
+            remainingAttempts += 5;
+            saveGameData();
+            updateStaminaDisplay();
+            updateAttemptsDisplay();
+            
+            // ゲーム継続（カードの状態は保持）
+            isChecking = false;
+            document.getElementById('game-over').style.display = 'none';
+        }
+
+        function giveUpStage() {
+            document.getElementById('game-over').style.display = 'none';
+            // 最初のステージに戻る
+            startStage(1, 1);
+        }
+
+        function updateAttemptsDisplay() {
+            var attemptsElement = document.getElementById('remaining-attempts');
+            var displayElement = document.querySelector('.attempts-display');
+            
+            if (attemptsElement && displayElement) {
+                attemptsElement.textContent = remainingAttempts;
+                
+                if (remainingAttempts <= 1) {
+                    displayElement.classList.add('attempts-warning');
+                } else {
+                    displayElement.classList.remove('attempts-warning');
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('current-stage').textContent = currentStage + '-' + currentRound;
+            document.getElementById('card-count').textContent = stageConfig[currentStage].cards;
+            document.getElementById('pairs-found').textContent = matchedPairs;
+            document.getElementById('total-pairs').textContent = stageConfig[currentStage].pairs;
+            document.getElementById('attempts').textContent = attempts;
+        }
+
+        function updateStaminaDisplay() {
+            document.getElementById('sunflower-count').textContent = sunflowerSeeds + '/' + maxSunflowerSeeds;
+            
+            var timerElement = document.getElementById('stamina-timer');
+            var recoveryTimeElement = document.getElementById('recovery-time');
+            
+            if (sunflowerSeeds < maxSunflowerSeeds) {
+                var nextRecoveryTime = lastStaminaUpdate + (30 * 60 * 1000);
+                var timeUntilRecovery = Math.max(0, nextRecoveryTime - Date.now());
+                var minutes = Math.floor(timeUntilRecovery / 60000);
+                var seconds = Math.floor((timeUntilRecovery % 60000) / 1000);
+                
+                recoveryTimeElement.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                timerElement.style.display = 'block';
+            } else {
+                timerElement.style.display = 'none';
+            }
+            
+            updateStartButton();
+        }
+
+        function updateStartButton() {
+            var startBtn = document.getElementById('game-start-btn');
+            var isCleared = completedStages.indexOf(currentStage + '-' + currentRound) !== -1;
+            
+            if (!isCleared && sunflowerSeeds <= 0) {
+                startBtn.disabled = true;
+                startBtn.textContent = 'ひま種不足';
+            } else {
+                startBtn.disabled = false;
+                startBtn.textContent = 'ゲームスタート！';
+            }
+        }
+
+        function updateStamina() {
+            var now = Date.now();
+            var timeDiff = now - lastStaminaUpdate;
+            var recoveredSeeds = Math.floor(timeDiff / (30 * 60 * 1000));
+            
+            if (recoveredSeeds > 0 && sunflowerSeeds < maxSunflowerSeeds) {
+                sunflowerSeeds = Math.min(maxSunflowerSeeds, sunflowerSeeds + recoveredSeeds);
+                lastStaminaUpdate = now;
+                saveGameData();
+            }
+            
+            updateStaminaDisplay();
+        }
+
+        function loadGameData() {
+            try {
+                var savedData = localStorage.getItem('hamuketsu-game-data');
+                if (savedData) {
+                    var data = JSON.parse(savedData);
+                    sunflowerSeeds = data.sunflowerSeeds || 6;
+                    maxSunflowerSeeds = data.maxSunflowerSeeds || 6;
+                    lastStaminaUpdate = data.lastStaminaUpdate || Date.now();
+                    rewardStock = data.rewardStock || {};
+                    completedStages = data.completedStages || [];
+                    currentStage = data.currentStage || 1;
+                    currentRound = data.currentRound || 1;
+                }
+            } catch (e) {
+                console.log('データ読み込みエラー:', e);
+            }
+        }
+
+        function saveGameData() {
+            try {
+                var data = {
+                    sunflowerSeeds: sunflowerSeeds,
+                    maxSunflowerSeeds: maxSunflowerSeeds,
+                    lastStaminaUpdate: lastStaminaUpdate,
+                    rewardStock: rewardStock,
+                    completedStages: completedStages,
+                    currentStage: currentStage,
+                    currentRound: currentRound
+                };
+                localStorage.setItem('hamuketsu-game-data', JSON.stringify(data));
+            } catch (e) {
+                console.log('データ保存エラー:', e);
+            }
+        }
+
+        function shuffleCards() {
+            if (!gameStarted) {
+                createGameBoard();
+            } else {
+                if (confirm('シャッフルするとゲームをやり直します。よろしいですか？')) {
+                    startStage(currentStage, currentRound);
+                }
+            }
+        }
+
+        function resetGame() {
+            if (confirm('ゲームデータをリセットしますか？\n（報酬、ひま種、クリア状況がリセットされます）')) {
+                localStorage.removeItem('hamuketsu-game-data');
+                sunflowerSeeds = 3;
+                maxSunflowerSeeds = 3;
+                lastStaminaUpdate = Date.now();
+                rewardStock = {};
+                completedStages = [];
+                currentStage = 1;
+                currentRound = 1;
+                saveGameData();
+                updateStaminaDisplay();
+                startStage(1, 1);
+            }
+        }
+
+        function showRewardList() {
+            console.log('クリア報酬一覧を表示');
+            var modal = document.getElementById('reward-list-modal');
+            var grid = document.getElementById('reward-list-grid');
+            
+            grid.innerHTML = '';
+            
+            for (var i = 0; i < rewardNames.length; i++) {
+                var item = document.createElement('div');
+                item.className = 'reward-item';
+                item.style.padding = '20px';
+                
+                var nameDiv = document.createElement('div');
+                nameDiv.className = 'reward-name';
+                nameDiv.textContent = rewardNames[i];
+                nameDiv.style.fontSize = '16px';
+                nameDiv.style.fontWeight = 'bold';
+                nameDiv.style.marginBottom = '10px';
+                
+                var stageDiv = document.createElement('div');
+                stageDiv.textContent = 'ステージ' + (i + 1) + 'クリア報酬';
+                stageDiv.style.fontSize = '14px';
+                stageDiv.style.color = '#666';
+                
+                var statusDiv = document.createElement('div');
+                statusDiv.textContent = '画像は獲得後のお楽しみ♪';
+                statusDiv.style.fontSize = '12px';
+                statusDiv.style.color = '#999';
+                statusDiv.style.marginTop = '5px';
+                
+                item.appendChild(nameDiv);
+                item.appendChild(stageDiv);
+                item.appendChild(statusDiv);
+                grid.appendChild(item);
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeRewardList() {
+            document.getElementById('reward-list-modal').style.display = 'none';
+        }
+
+        function showCollection() {
+            console.log('報酬図鑑を表示');
+            var modal = document.getElementById('collection-modal');
+            var grid = document.getElementById('collection-grid');
+            
+            grid.innerHTML = '';
+            
+            for (var i = 0; i < rewardNames.length; i++) {
+                var count = rewardStock[rewardNames[i]] || 0;
+                var item = document.createElement('div');
+                item.className = 'reward-item';
+                
+                if (count > 0) {
+                    item.style.opacity = '1';
+                    item.style.cursor = 'pointer';
+                } else {
+                    item.style.opacity = '0.3';
+                    item.style.cursor = 'default';
+                }
+                
+                var img = document.createElement('img');
+                img.src = rewardImages[i] || '';
+                img.alt = rewardNames[i];
+                
+                var nameDiv = document.createElement('div');
+                nameDiv.className = 'reward-name';
+                nameDiv.textContent = rewardNames[i];
+                
+                var countDiv = document.createElement('div');
+                countDiv.className = 'reward-count';
+                countDiv.textContent = '×' + count;
+                
+                item.appendChild(img);
+                item.appendChild(nameDiv);
+                item.appendChild(countDiv);
+                grid.appendChild(item);
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeCollection() {
+            document.getElementById('collection-modal').style.display = 'none';
+        }
+
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+
+        // 初期化実行
+        window.onload = function() {
+            console.log('ページ読み込み完了、初期化開始');
+            init();
+        };
+    </script>
+</body>
+</html>

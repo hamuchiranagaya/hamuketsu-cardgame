@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ハムケツ神経衰弱ゲーム</title>
+    <title>ハムケツ神経衰弱</title>
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="data:application/json,{%22name%22:%22ハムケツ神経衰弱%22,%22short_name%22:%22ハムケツ%22,%22icons%22:[{%22src%22:%22https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22start_url%22:%22./%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23ff6b9d%22,%22background_color%22:%22%23fff%22}">
+    <link rel="icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
+    <link rel="apple-touch-icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
     <style>
         * {
             margin: 0;
@@ -328,6 +333,60 @@
             color: #333;
         }
 
+        /* ゲーム開始セクションのスタイル */
+        .game-start-section {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .game-icon:hover {
+            transform: scale(1.05);
+        }
+
+        /* ホーム画面追加ボタン */
+        .install-section {
+            margin-bottom: 20px;
+        }
+
+        .install-btn {
+            background: linear-gradient(45deg, #9c27b0, #673ab7);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .install-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         @media (max-width: 768px) {
             .game-title {
                 font-size: 2rem;
@@ -335,6 +394,11 @@
             
             .card {
                 max-width: 120px;
+            }
+
+            .game-icon {
+                width: 100px;
+                height: 100px;
             }
         }
 
@@ -502,7 +566,12 @@
     </div>
 
     <div class="game-start-section" id="game-start-section" style="text-align: center;">
-        <h2 style="color: white; margin-bottom: 20px;">🎮 ゲームを開始しましょう！</h2>
+        <img src="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png" alt="ハムケツアイコン" class="game-icon">
+        
+        <div class="install-section">
+            <button class="install-btn" id="install-btn" style="display: none;">📱 ホーム画面に追加</button>
+        </div>
+        
         <button class="game-start-btn" id="game-start-btn">ゲームスタート！</button>
     </div>
 
@@ -619,8 +688,12 @@
         var rewardNames = [
             'ひまわりの種', 'にんじんスティック', 'ハムシード', 
             'プレミアムペレット', '特製おやつ', 'ゴールデンナッツ',
-            'レジェンドキャロット', 'ダイヤモンドシード', 'レア回し車', 'ミラクルチーズ'
+            'レジェンドキャロット', 'ダイヤモンドシード', 'レア回し車', 'ミラクルハーブ'
         ];
+
+        // PWAインストール関連
+        var deferredPrompt;
+        var installButton = document.getElementById('install-btn');
 
         // ゲーム状態
         var currentStage = 1;
@@ -636,7 +709,7 @@
         var gameTime = 0;
         var gameStarted = false;
 
-        // スタミナシステム
+        // スタミナシステム 
         var sunflowerSeeds = 6;
         var maxSunflowerSeeds = 6;
         var lastStaminaUpdate = Date.now();
@@ -655,6 +728,35 @@
             9: { cards: 22, pairs: 11, rounds: 3, maxAttempts: 5 },
             10: { cards: 24, pairs: 12, rounds: 3, maxAttempts: 5 }
         };
+
+        // PWAインストール機能
+        window.addEventListener('beforeinstallprompt', function(e) {
+            console.log('beforeinstallprompt イベント発生');
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'inline-block';
+        });
+
+        installButton.addEventListener('click', function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('ユーザーがPWAインストールを承認');
+                    } else {
+                        console.log('ユーザーがPWAインストールを拒否');
+                    }
+                    deferredPrompt = null;
+                    installButton.style.display = 'none';
+                });
+            }
+        });
+
+        // アプリがインストール済みの場合、インストールボタンを非表示
+        window.addEventListener('appinstalled', function(e) {
+            console.log('PWAがインストールされました');
+            installButton.style.display = 'none';
+        });
 
         // 初期化
         function init() {
@@ -974,9 +1076,9 @@
             
             if (showReward) {
                 var rewardName = rewardNames[currentStage - 1];
-                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #ハムケツ神経衰弱 #ハムスター #はむチラ';
+                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #ハムケツ神経衰弱 #ハムスター #はむちら';
             } else {
-                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #ハムケツ神経衰弱 #ハムスター #はむチラ';
+                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #ハムケツ神経衰弱 #ハムスター #はむちら';
             }
             
             var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);

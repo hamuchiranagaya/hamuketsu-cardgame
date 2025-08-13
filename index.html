@@ -1226,14 +1226,15 @@
         function shareToTwitter() {
             var showReward = currentRound === 3 || (currentStage === 11);
             var text;
+            var gameUrl = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/';
             
             if (currentStage === 11) {
-                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆 #はむケツ神経衰弱 #ハムスター #はむチラ';
+                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆 #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
             } else if (showReward) {
                 var rewardName = rewardNames[currentStage - 1];
-                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #はむケツ神経衰弱 #ハムスター #はむチラ';
+                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
             } else {
-                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #はむケツ神経衰弱 #ハムスター #はむチラ';
+                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
             }
             
             var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
@@ -1243,6 +1244,7 @@
         function shareToLine() {
             var showReward = currentRound === 3 || (currentStage === 11);
             var text;
+            var gameUrl = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/';
             
             if (currentStage === 11) {
                 text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆';
@@ -1253,7 +1255,7 @@
                 text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨';
             }
             
-            var url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(text);
+            var url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(gameUrl) + '&text=' + encodeURIComponent(text);
             window.open(url, '_blank');
         }
 

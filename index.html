@@ -1,1568 +1,403 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>はむケツ神経衰弱</title>
-    
-    <!-- PWA設定 -->
-    <link rel="manifest" href="data:application/json,{%22name%22:%22はむケツ神経衰弱%22,%22short_name%22:%22はむケツ%22,%22icons%22:[{%22src%22:%22https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22start_url%22:%22./%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23ff6b9d%22,%22background_color%22:%22%23fff%22}">
-    <link rel="icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
-    <link rel="apple-touch-icon" href="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .game-title {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .creator-link {
-            margin-bottom: 15px;
-        }
-
-        .creator-link a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            opacity: 0.9;
-            transition: opacity 0.3s ease;
-        }
-
-        .creator-link a:hover {
-            opacity: 1;
-            text-decoration: underline;
-        }
-
-        .stamina-info {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stamina-item {
-            background: rgba(255,255,255,0.9);
-            padding: 8px 16px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            font-weight: bold;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .game-board {
-            display: grid;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            max-width: 100%;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .card {
-            width: 100%;
-            aspect-ratio: 1/1;
-            cursor: pointer;
-            border-radius: 15px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            min-width: 90px;
-            max-width: 140px;
-            justify-self: center;
-        }
-
-        .card.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card.matched {
-            opacity: 1;
-            transform: rotateY(180deg);
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
-            pointer-events: none;
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .card-back {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transform: rotateY(0deg);
-        }
-
-        .card-front {
-            transform: rotateY(180deg);
-            background: white;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
-        }
-
-        .back-card-image {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-        }
-
-        .game-start-btn {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin: 20px 0;
-        }
-
-        .game-start-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .game-start-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .attempts-counter {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .attempts-display {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: inline-block;
-        }
-
-        .attempts-warning {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a6f) !important;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .game-info {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .info-item {
-            background: rgba(255,255,255,0.9);
-            padding: 10px 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            font-weight: bold;
-            color: #333;
-        }
-
-        .stage-selector {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .stage-btn {
-            padding: 10px 15px;
-            border: 2px solid #fff;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        .stage-btn.active {
-            background: rgba(255,255,255,0.9);
-            color: #333;
-        }
-
-        .stage-btn.completed {
-            background: linear-gradient(45deg, #4caf50, #45a049);
-            border-color: #4caf50;
-        }
-
-        .stage-btn.locked {
-            background: rgba(128,128,128,0.5);
-            color: #666;
-            cursor: not-allowed;
-            border-color: #999;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
-        .reward-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .reward-item {
-            text-align: center;
-            padding: 15px;
-            border-radius: 15px;
-            background: #f5f5f5;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .reward-item:hover {
-            transform: scale(1.05);
-        }
-
-        .reward-item img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .reward-name {
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .reward-count {
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* ゲーム開始セクションのスタイル */
-        .game-start-section {
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            max-width: 350px;
-            width: 100%;
-        }
-
-        .game-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            border-radius: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .game-icon:hover {
-            transform: scale(1.05);
-        }
-
-        /* ホーム画面追加ボタン */
-        .install-section {
-            margin-bottom: 20px;
-        }
-
-        .install-btn {
-            background: linear-gradient(45deg, #9c27b0, #673ab7);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-        }
-
-        .install-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .install-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        @media (max-width: 768px) {
-            .game-title {
-                font-size: 2rem;
-            }
-            
-            .creator-link a {
-                font-size: 12px;
-            }
-            
-            .card {
-                min-width: 80px;
-                max-width: 120px;
-            }
-
-            .game-icon {
-                width: 100px;
-                height: 100px;
-            }
-
-            .game-start-section {
-                padding: 25px;
-                max-width: 320px;
-            }
-
-            .game-board {
-                max-width: 350px;
-                padding: 15px;
-            }
-        }
-
-        .stage-complete {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .complete-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            animation: celebrateIn 0.8s ease-out;
-        }
-
-        @keyframes celebrateIn {
-            0% {
-                transform: scale(0.5) rotate(-10deg);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        .complete-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .reward-image {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .reward-text {
-            font-size: 1.5rem;
-            margin: 20px 0;
-        }
-
-        .share-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .share-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .x-btn {
-            background: #000000;
-        }
-
-        .line-btn {
-            background: #00c300;
-        }
-
-        .share-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        .firework {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            animation: firework 1s ease-out forwards;
-        }
-
-        @keyframes firework {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(10);
-                opacity: 0;
-            }
-        }
-
-        .game-over {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-        }
-
-        .game-over-card {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            animation: slideIn 0.8s ease-out;
-        }
-
-        @keyframes slideIn {
-            0% {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                min-width: 70px;
-                max-width: 100px;
-            }
-
-            .game-start-section {
-                padding: 20px;
-                max-width: 300px;
-            }
-
-            .game-board {
-                max-width: 320px;
-                padding: 12px;
-            }
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>はむケツ ぷよ風 落ちゲー 試作</title>
+  <style>
+    html,body{margin:0;padding:0;background:#0b0b10;color:#fff;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Hiragino Sans',sans-serif}
+    #wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px}
+    canvas{background:#111;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .hud{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .btnbar{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,64px);gap:8px;touch-action:manipulation}
+    button{border:none;border-radius:12px;padding:12px;background:#222;color:#fff;font-weight:700;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+    button:active{transform:translateY(1px);opacity:.9}
+    .wide{grid-column:span 3}
+    .note{opacity:.85;font-size:12px;text-align:center;line-height:1.4}
+    a{color:#86e1ff}
+  </style>
 </head>
 <body>
-    <div class="game-header">
-        <h1 class="game-title">🐹 はむケツ神経衰弱 🐹</h1>
-        <div class="creator-link">
-            <a href="https://www.youtube.com/@hamuchira" target="_blank">by もっと！はむチラ長屋ch.</a>
-        </div>
-        <div class="stamina-info">
-            <div class="stamina-item">🌻 ひま種: <span id="sunflower-count">6/6</span></div>
-            <div class="stamina-item" id="stamina-timer" style="display: none;">回復まで: <span id="recovery-time"></span></div>
-        </div>
-    </div>
+<div id="wrap">
+  <h2>はむケツ ぷよ風（試作）</h2>
+  <div class="hud">
+    <div>スコア: <span id="score">0</span></div>
+    <div>チェイン: <span id="chain">0</span></div>
+    <div><button id="restart">リスタート</button></div>
+  </div>
+  <canvas id="game" width="384" height="640"></canvas>
+  <div class="btnbar" aria-label="タッチ操作">
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+    <button id="rotL">↺</button>
+    <button id="drop" class="wide">瞬間落下</button>
+    <button id="rotR">↻</button>
+  </div>
+  <div class="note">
+    操作：← → 移動 / ↑ 回転 / ↓ ソフトドロップ / スペース 瞬間落下 / R リスタート<br/>
+    画像差し替え：<code>assets/ham_01.png</code> ～ <code>ham_06.png</code> を置くと写真表示になります。
+  </div>
+</div>
+<script>
+// はじける演出付き ぷよ風 はむケツ
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
 
-    <div class="game-start-section" id="game-start-section" style="text-align: center;">
-        <img src="https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamuketsu_icon_512.png" alt="ハムケツアイコン" class="game-icon">
-        
-        <div class="install-section">
-            <button class="install-btn" id="install-btn" style="display: none;">📱 ホーム画面に追加</button>
-        </div>
-        
-        <button class="game-start-btn" id="game-start-btn">ゲームスタート！</button>
-    </div>
+  function fit() {
+    const scale = Math.min((window.innerWidth-16)/W, (window.innerHeight-220)/H);
+    canvas.style.width = (W*scale)+'px';
+    canvas.style.height = (H*scale)+'px';
+  }
+  window.addEventListener('resize', fit); fit();
 
-    <div class="game-board" id="game-board" style="display: none;">
-        <!-- カードはJavaScriptで生成 -->
-    </div>
+  const COLS = 6, ROWS = 12;
+  const TILE = Math.floor(Math.min(W/COLS, H/ROWS));
+  const PX = Math.floor((W - COLS*TILE)/2);
+  const PY = Math.floor((H - ROWS*TILE)/2);
 
-    <div class="attempts-counter" id="attempts-counter" style="display: none;">
-        <div class="attempts-display">残り試行回数: <span id="remaining-attempts">5</span>回</div>
-    </div>
+  const TYPES = 6;
+  const COLORS = ['#f5c6a5','#e0f0ff','#c6d0ff','#ffd9d9','#c0ffc8','#ffe6a8'];
 
-    <div class="game-info">
-        <div class="info-item">ステージ: <span id="current-stage">1-1</span></div>
-        <div class="info-item">カード: <span id="card-count">6</span>枚</div>
-        <div class="info-item">ペア: <span id="pairs-found">0</span>/<span id="total-pairs">3</span></div>
-        <div class="info-item">試行回数: <span id="attempts">0</span></div>
-    </div>
+  const images = Array.from({length:TYPES}, (_,i)=> new Image());
+  let useImages = false;
+  let loadedCount = 0;
+  images.forEach((img, i) => {
+    img.onload = () => { loadedCount++; if (loadedCount===TYPES) { useImages = true; } };
+    img.onerror = () => {};
+    img.src = `assets/ham_${String(i+1).padStart(2,'0')}.png`;
+  });
 
-    <div class="stage-selector" id="stage-selector">
-        <!-- ステージボタンはJavaScriptで生成 -->
-    </div>
+  let grid, falling, nextPair, score, chain;
+  const empty = () => ({ type: 0, pop: false, popT: 0 });
+  const resetGrid = () => Array.from({length:ROWS},()=>Array.from({length:COLS}, empty));
 
-    <div class="controls">
-        <button class="btn btn-secondary" id="reward-list-btn">クリア報酬一覧</button>
-        <button class="btn btn-secondary" id="collection-btn">報酬図鑑</button>
-    </div>
+  // resolve state machine
+  let resolving = false;
+  let popPhase = 0; // 0 none, 1 animating
+  let popTimer = 0;
+  let poppedAny = false;
+  let localChain = 0;
+  let particles = [];
 
-    <!-- クリア報酬一覧モーダル -->
-    <div class="modal" id="reward-list-modal">
-        <div class="modal-content">
-            <h2>🎁 クリア報酬一覧</h2>
-            <div class="reward-grid" id="reward-list-grid"></div>
-            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" id="close-reward-list">閉じる</button>
-        </div>
-    </div>
+  function newPair() {
+    return { cx: Math.floor(COLS/2), cy: -1,
+      blocks: [{dx:0, dy:0, type: randType()},{dx:0, dy:-1, type: randType()}],
+      rot: 0 };
+  }
+  function randType(){ return 1 + (Math.random()*TYPES|0); }
 
-    <!-- 報酬図鑑モーダル -->
-    <div class="modal" id="collection-modal">
-        <div class="modal-content">
-            <h2>📚 報酬図鑑</h2>
-            <div class="reward-grid" id="collection-grid"></div>
-            <button class="btn btn-primary" style="margin-top: 20px; width: 100%;" id="close-collection">閉じる</button>
-        </div>
-    </div>
+  function restart() {
+    grid = resetGrid(); score = 0; chain = 0;
+    particles = [];
+    falling = newPair(); nextPair = newPair();
+    resolving = false; popPhase = 0; poppedAny = false; localChain = 0; popTimer = 0;
+    updateHUD();
+  }
+  function updateHUD(){
+    document.getElementById('score').textContent = score;
+    document.getElementById('chain').textContent = chain;
+  }
 
-    <!-- 報酬詳細モーダル -->
-    <div class="modal" id="reward-detail-modal">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h3 id="reward-detail-name" style="margin-bottom: 20px;"></h3>
-            <img id="reward-detail-image" src="" alt="報酬詳細" style="width: 250px; height: 250px; object-fit: cover; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-            <p id="reward-detail-count" style="margin: 20px 0; font-size: 18px; font-weight: bold;"></p>
-            <button class="btn btn-primary" id="close-reward-detail">閉じる</button>
-        </div>
-    </div>
+  const keys = {};
+  window.addEventListener('keydown', e => { keys[e.code]=true; if (['ArrowUp','Space','KeyR'].includes(e.code)) e.preventDefault(); });
+  window.addEventListener('keyup', e => { keys[e.code]=false; });
 
-    <!-- ステージクリア演出 -->
-    <div class="stage-complete" id="stage-complete">
-        <div class="complete-card">
-            <h2 class="complete-title">🎉 おめでとう！ 🎉</h2>
-            <p class="reward-text">ステージ <span id="completed-stage"></span> を<span id="clear-time"></span>秒でクリア！</p>
-            <div id="reward-section">
-                <img class="reward-image" id="reward-image" src="" alt="報酬">
-                <p class="reward-text">報酬「<span id="reward-name"></span>」を手に入れた！</p>
-            </div>
-            <div class="share-buttons">
-                <button class="share-btn x-btn" id="share-twitter">Xでシェア</button>
-                <button class="share-btn line-btn" id="share-line">LINEでシェア</button>
-            </div>
-            <button class="btn btn-primary" id="next-stage-btn" style="margin-top: 20px;">次のステージへ</button>
-        </div>
-    </div>
+  const bindBtn = (id, fn) => {
+    const el = document.getElementById(id);
+    let t;
+    const press = () => { fn(); t = setInterval(fn, 120); };
+    const release = () => { clearInterval(t); };
+    el.addEventListener('touchstart', (e)=>{ e.preventDefault(); press(); });
+    el.addEventListener('touchend', (e)=>{ e.preventDefault(); release(); });
+    el.addEventListener('mousedown', press);
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+  };
+  bindBtn('left', ()=> move(-1));
+  bindBtn('right',()=> move(1));
+  bindBtn('down', ()=> softDrop());
+  bindBtn('rotL', ()=> rotate(-1));
+  bindBtn('rotR', ()=> rotate(1));
+  bindBtn('drop', ()=> hardDrop());
+  document.getElementById('restart').onclick = ()=> restart();
 
-    <!-- ゲームオーバー画面 -->
-    <div class="game-over" id="game-over">
-        <div class="game-over-card">
-            <h2>😵 試行回数オーバー！ 😵</h2>
-            <p>制限回数内にクリアできませんでした</p>
-            <div style="margin: 20px 0;">
-                <p>🌻 ひま種を1個使って試行回数を5回追加しますか？</p>
-                <p>残り: <span id="remaining-seeds"></span>個</p>
-            </div>
-            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                <button class="btn btn-primary" id="retry-btn">ひま種で+5回</button>
-                <button class="btn btn-secondary" id="give-up-btn">諦める</button>
-            </div>
-        </div>
-    </div>
+  function move(dx){ if (!falling || resolving) return; if (canMove(falling, dx, 0)) falling.cx += dx; }
+  function softDrop(){ if (!falling || resolving) return; if (canMove(falling, 0, 1)) falling.cy += 1; else lock(); }
+  function hardDrop(){
+    if (!falling || resolving) return;
+    while (canMove(falling, 0, 1)) falling.cy += 1;
+    lock();
+  }
+  function rotate(dir){
+    if (!falling || resolving) return;
+    const next = (falling.rot + dir + 4) % 4;
+    const nb = orient(next, falling.blocks[0].type, falling.blocks[1].type);
+    const tmp = { ...falling, blocks: nb, rot: next };
+    if (canMove(tmp, 0, 0)) { falling.blocks = nb; falling.rot = next; }
+  }
+  function orient(rot, t0, t1){
+    const b0 = {dx:0, dy:0, type:t0};
+    const b1 = {dx:0, dy:-1, type:t1};
+    if (rot===1){ b1.dx=1; b1.dy=0; }
+    if (rot===2){ b1.dx=0; b1.dy=1; }
+    if (rot===3){ b1.dx=-1; b1.dy=0; }
+    return [b0,b1];
+  }
+  function canMove(pair, dx, dy){
+    for (const b of pair.blocks){
+      const x = pair.cx + b.dx + dx;
+      const y = pair.cy + b.dy + dy;
+      if (x<0 || x>=COLS || y>=ROWS) return false;
+      if (y>=0 && grid[y][x].type) return false;
+    }
+    return true;
+  }
 
-    <!-- 花火エフェクト -->
-    <div class="fireworks" id="fireworks"></div>
+  function lock(){
+    for (const b of falling.blocks){
+      const x = falling.cx + b.dx, y = falling.cy + b.dy;
+      if (y<0){ restart(); return; }
+      grid[y][x] = { type: b.type, pop: false, popT: 0 };
+    }
+    falling = null;
+    resolving = true; popPhase = 0; poppedAny = false; localChain = 0;
+  }
 
-    <script>
-        // グローバル変数
-        var hamsterImages = [
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster01.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster02.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster03.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster04.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster05.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster06.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster07.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster08.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster09.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster10.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster11.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/hamster12.jpg'
-        ];
-        
-        var cardBackImage = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/cardback.jpg';
-        
-        var rewardImages = [
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward01.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward02.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward03.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward04.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward05.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward06.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward07.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward08.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward09.jpg',
-            'https://hamuchiranagaya.github.io/hamuketsu-cardgame/reward10.jpg'
-        ];
-
-        var rewardNames = [
-            'ぽんケツ', 'せくちーケツ', '黄金比ケツ', 
-            'シゴデキケツ', 'オレケツ', 'こんケツ',
-            'やばケツ', 'ふぃなケツ', 'そいケツ', 'ホワこふケツ'
-        ];
-
-        // PWAインストール関連
-        var deferredPrompt;
-        var installButton = document.getElementById('install-btn');
-
-        // ゲーム状態
-        var currentStage = 1;
-        var currentRound = 1;
-        var flippedCards = [];
-        var matchedPairs = 0;
-        var attempts = 0;
-        var maxAttempts = 5;
-        var remainingAttempts = 5;
-        var isChecking = false;
-        var completedStages = [];
-        var startTime = 0;
-        var gameTime = 0;
-        var gameStarted = false;
-
-        // スタミナシステム 
-        var sunflowerSeeds = 6;
-        var maxSunflowerSeeds = 6;
-        var lastStaminaUpdate = Date.now();
-        var rewardStock = {};
-
-        // ステージ設定
-        var stageConfig = {
-            1: { cards: 6, pairs: 3, rounds: 3, maxAttempts: 5 },
-            2: { cards: 8, pairs: 4, rounds: 3, maxAttempts: 5 },
-            3: { cards: 10, pairs: 5, rounds: 3, maxAttempts: 5 },
-            4: { cards: 12, pairs: 6, rounds: 3, maxAttempts: 5 },
-            5: { cards: 14, pairs: 7, rounds: 3, maxAttempts: 5 },
-            6: { cards: 16, pairs: 8, rounds: 3, maxAttempts: 5 },
-            7: { cards: 18, pairs: 9, rounds: 3, maxAttempts: 5 },
-            8: { cards: 20, pairs: 10, rounds: 3, maxAttempts: 5 },
-            9: { cards: 22, pairs: 11, rounds: 3, maxAttempts: 5 },
-            10: { cards: 24, pairs: 12, rounds: 3, maxAttempts: 5 },
-            11: { cards: 20, pairs: 10, rounds: 1, maxAttempts: 10, isSpecial: true } // スペシャルステージ
-        };
-
-        // PWAインストール機能
-        window.addEventListener('beforeinstallprompt', function(e) {
-            console.log('beforeinstallprompt イベント発生');
-            e.preventDefault();
-            deferredPrompt = e;
-            installButton.style.display = 'inline-block';
-        });
-
-        installButton.addEventListener('click', function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(function(choiceResult) {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('ユーザーがPWAインストールを承認');
-                    } else {
-                        console.log('ユーザーがPWAインストールを拒否');
-                    }
-                    deferredPrompt = null;
-                    installButton.style.display = 'none';
-                });
-            }
-        });
-
-        // アプリがインストール済みの場合、インストールボタンを非表示
-        window.addEventListener('appinstalled', function(e) {
-            console.log('PWAがインストールされました');
-            installButton.style.display = 'none';
-        });
-
-        // 初期化
-        function init() {
-            console.log('ゲーム初期化開始');
-            loadGameData();
-            updateStamina();
-            createStageSelector();
-            startStage(currentStage, currentRound);
-            setInterval(updateStamina, 60000);
-            setInterval(updateStaminaDisplay, 1000);
-            
-            // イベントリスナー設定
-            setupEventListeners();
+  function resolveScan(){
+    // reset marks
+    for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){ grid[r][c].pop=false; grid[r][c].popT=0; }
+    const visited = Array.from({length:ROWS},()=>Array(COLS).fill(false));
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    function bfs(sr, sc){
+      const t = grid[sr][sc].type;
+      const q=[[sr,sc]]; visited[sr][sc]=true;
+      const cells=[[sr,sc]];
+      while(q.length){
+        const [r,c]=q.shift();
+        for(const [dr,dc] of dirs){
+          const nr=r+dr, nc=c+dc;
+          if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!visited[nr][nc]&&grid[nr][nc].type===t){
+            visited[nr][nc]=true; q.push([nr,nc]); cells.push([nr,nc]);
+          }
         }
-
-        function setupEventListeners() {
-            document.getElementById('game-start-btn').addEventListener('click', startGame);
-            document.getElementById('reward-list-btn').addEventListener('click', showRewardList);
-            document.getElementById('collection-btn').addEventListener('click', showCollection);
-            document.getElementById('close-reward-list').addEventListener('click', closeRewardList);
-            document.getElementById('close-collection').addEventListener('click', closeCollection);
-            document.getElementById('close-reward-detail').addEventListener('click', closeRewardDetail);
-            document.getElementById('retry-btn').addEventListener('click', retryWithSeed);
-            document.getElementById('give-up-btn').addEventListener('click', giveUpStage);
-            document.getElementById('next-stage-btn').addEventListener('click', nextStage);
-            document.getElementById('share-twitter').addEventListener('click', shareToTwitter);
-            document.getElementById('share-line').addEventListener('click', shareToLine);
+      }
+      return cells;
+    }
+    let found = 0;
+    for (let r=0;r<ROWS;r++){
+      for (let c=0;c<COLS;c++){
+        if(!visited[r][c] && grid[r][c].type){
+          const cells = bfs(r,c);
+          if (cells.length>=4){
+            found += cells.length;
+            cells.forEach(([rr,cc])=> { grid[rr][cc].pop = true; grid[rr][cc].popT = 0; spawnBurst(PX+cc*TILE+TILE/2, PY+rr*TILE+TILE/2, grid[rr][cc].type); });
+          }
         }
+      }
+    }
+    if (found>0){
+      popPhase = 1; popTimer = 0; poppedAny = true; localChain++;
+    } else {
+      // 終了：次のペアを落とす
+      resolving = false;
+      chain = poppedAny ? localChain : 0;
+      updateHUD();
+      falling = nextPair; nextPair = newPair();
+    }
+  }
 
-        // ゲーム開始
-        function startGame() {
-            console.log('ゲーム開始');
-            var isCleared = completedStages.indexOf(currentStage + '-' + currentRound) !== -1;
-            
-            if (!isCleared && sunflowerSeeds <= 0) {
-                alert('🌻 ひま種が足りません！時間をおいて再挑戦してください。');
-                return;
-            }
-            
-            if (!isCleared) {
-                sunflowerSeeds--;
-                saveGameData();
-                updateStaminaDisplay();
-            }
-            
-            gameStarted = true;
-            startTime = Date.now();
-            
-            document.getElementById('game-start-section').style.display = 'none';
-            document.getElementById('game-board').style.display = 'grid';
-            document.getElementById('attempts-counter').style.display = 'block';
-            
-            updateAttemptsDisplay();
+  function spawnBurst(x, y, type){
+    const N = 10;
+    for (let i=0;i<N;i++){
+      const a = Math.random()*Math.PI*2;
+      const v = 1.5 + Math.random()*3.5;
+      particles.push({
+        x, y,
+        vx: Math.cos(a)*v,
+        vy: Math.sin(a)*v - 1.5,
+        life: 0,
+        max: 450 + Math.random()*250,
+        type
+      });
+    }
+  }
+
+  function updateParticles(dt){
+    const g = 0.005;
+    particles.forEach(p => {
+      p.life += dt;
+      p.x += p.vx * dt*0.06;
+      p.y += p.vy * dt*0.06;
+      p.vy += g * dt;
+    });
+    particles = particles.filter(p => p.life < p.max);
+  }
+
+  function performClearAndGravity(){
+    let cleared=0;
+    for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){
+      if (grid[r][c].pop){ grid[r][c] = empty(); cleared++; }
+    }
+    if (cleared>0){
+      const add = cleared*10 * (localChain>1? localChain : 1);
+      score += add; updateHUD();
+    }
+    // gravity
+    for (let c=0;c<COLS;c++){
+      let write = ROWS-1;
+      for (let r=ROWS-1;r>=0;r--){
+        if (grid[r][c].type){
+          if (r!==write){ grid[write][c]=grid[r][c]; grid[r][c]=empty(); }
+          write--;
         }
+      }
+    }
+  }
 
-        // ステージ開始
-        function startStage(stage, round) {
-            if (!canAccessStage(stage, round)) {
-                alert('前のステージをクリアしてください！');
-                return;
-            }
-            
-            currentStage = stage;
-            currentRound = round;
-            matchedPairs = 0;
-            attempts = 0;
-            flippedCards = [];
-            isChecking = false;
-            gameStarted = false;
-            maxAttempts = stageConfig[stage].maxAttempts;
-            remainingAttempts = maxAttempts;
-            
-            updateUI();
-            createGameBoard();
-            createStageSelector();
-            
-            document.getElementById('game-start-section').style.display = 'block';
-            document.getElementById('game-board').style.display = 'none';
-            document.getElementById('attempts-counter').style.display = 'none';
-            updateStartButton();
+  function drawBlob(x,y,size,type, scale=1, alpha=1){
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const cx = x + size/2, cy = y + size/2;
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx, -cy);
+    if (useImages){
+      const img = images[(type-1)%images.length];
+      ctx.drawImage(img, x, y, size, size);
+      ctx.restore();
+      return;
+    }
+    const r=size*0.45;
+    const grad = ctx.createRadialGradient(cx-r*0.4, cy-r*0.4, r*0.2, cx, cy, r);
+    const base = COLORS[(type-1)%COLORS.length];
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.15, base);
+    grad.addColorStop(1, '#333');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath();
+    ctx.arc(cx+r*0.45, cy+r*0.1, r*0.18, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawParticles(){
+    for (const p of particles){
+      const a = 1 - (p.life / p.max);
+      const s = 0.5 + 0.7*a;
+      const size = Math.max(10, TILE*0.5*s);
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, a);
+      ctx.fillStyle = COLORS[(p.type-1)%COLORS.length];
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, size*0.12, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function update(dt){
+    // input (single-fire)
+    if (keys['ArrowLeft']){ move(-1); keys['ArrowLeft']=false; }
+    if (keys['ArrowRight']){ move(1); keys['ArrowRight']=false; }
+    if (keys['ArrowDown']){ softDrop(); keys['ArrowDown']=false; }
+    if (keys['ArrowUp']){ rotate(1); keys['ArrowUp']=false; }
+    if (keys['Space']){ hardDrop(); keys['Space']=false; }
+    if (keys['KeyR']){ restart(); keys['KeyR']=false; }
+
+    updateParticles(dt);
+
+    if (resolving){
+      if (popPhase===0){
+        // 探索して、消える対象があればアニメ開始
+        resolveScan();
+      } else if (popPhase===1){
+        // ポップ演出：スケールアップ→フェード（200ms）
+        popTimer += dt;
+        const D = 220;
+        for (let r=0;r<ROWS;r++) for (let c=0;c<COLS;c++){
+          const cell = grid[r][c];
+          if (cell.pop){ cell.popT = Math.min(1, popTimer/D); }
         }
-
-        function canAccessStage(stage, round) {
-            if (stage === 1 && round === 1) return true;
-            
-            // スペシャルステージ（ステージ11）のアクセス条件
-            if (stage === 11) {
-                return hasAllRewards();
-            }
-            
-            if (round > 1) {
-                return completedStages.indexOf(stage + '-' + (round - 1)) !== -1;
-            }
-            
-            return completedStages.indexOf((stage - 1) + '-3') !== -1;
+        if (popTimer >= D){
+          // 実際に消して重力、その後また探索へ
+          performClearAndGravity();
+          popPhase = 0; popTimer = 0;
         }
+      }
+      return;
+    }
 
-        function hasAllRewards() {
-            // 全報酬（1-10ステージクリア）を持っているかチェック
-            for (var i = 0; i < 10; i++) {
-                var rewardName = rewardNames[i];
-                if (!rewardStock[rewardName] || rewardStock[rewardName] === 0) {
-                    return false;
-                }
-            }
-            return true;
+    // normal fall
+    dropTimer += dt;
+    const fallInterval = Math.max(150, 800 - Math.floor(score/200)*30);
+    if (dropTimer >= fallInterval){
+      dropTimer = 0;
+      if (falling){
+        if (canMove(falling, 0, 1)) falling.cy += 1;
+        else lock();
+      }
+    }
+  }
+
+  let dropTimer = 0;
+  function draw(){
+    // bg
+    ctx.fillStyle = '#0f1220';
+    ctx.fillRect(0,0,W,H);
+
+    // grid
+    for (let r=0;r<ROWS;r++){
+      for (let c=0;c<COLS;c++){
+        const cell = grid[r][c];
+        if (cell.type){
+          let scale=1, alpha=1;
+          if (cell.pop){
+            // scale up & fade
+            scale = 1 + 0.35*cell.popT;
+            alpha = 1 - 0.65*cell.popT;
+          }
+          drawBlob(PX+c*TILE, PY+r*TILE, TILE, cell.type, scale, alpha);
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.04)';
+          ctx.fillRect(PX+c*TILE+1, PY*r*TILE+1, TILE-2, TILE-2);
         }
+      }
+    }
 
-        function createStageSelector() {
-            var selector = document.getElementById('stage-selector');
-            selector.innerHTML = '';
-            
-            // 通常ステージ（1-10）
-            for (var stage = 1; stage <= 10; stage++) {
-                for (var round = 1; round <= 3; round++) {
-                    var btn = document.createElement('button');
-                    btn.className = 'stage-btn';
-                    btn.textContent = stage + '-' + round;
-                    
-                    var isLocked = !canAccessStage(stage, round);
-                    var isCompleted = completedStages.indexOf(stage + '-' + round) !== -1;
-                    var isActive = stage === currentStage && round === currentRound;
-                    
-                    if (isLocked) {
-                        btn.classList.add('locked');
-                        btn.onclick = function() { alert('前のステージをクリアしてください！'); };
-                    } else {
-                        btn.onclick = (function(s, r) {
-                            return function() { startStage(s, r); };
-                        })(stage, round);
-                    }
-                    
-                    if (isCompleted) btn.classList.add('completed');
-                    if (isActive) btn.classList.add('active');
-                    
-                    selector.appendChild(btn);
-                }
-            }
+    // falling
+    if (falling){
+      for (const b of falling.blocks){
+        const x = falling.cx + b.dx, y = falling.cy + b.dy;
+        if (y>=0) drawBlob(PX+x*TILE, PY+y*TILE, TILE, b.type);
+      }
+    }
 
-            // スペシャルステージ
-            var specialBtn = document.createElement('button');
-            specialBtn.className = 'stage-btn';
-            specialBtn.textContent = '🏆SP🏆';
-            specialBtn.style.background = 'linear-gradient(45deg, #ffd700, #ffb347)';
-            specialBtn.style.color = '#333';
-            specialBtn.style.fontWeight = 'bold';
-            
-            var canAccessSpecial = canAccessStage(11, 1);
-            var isSpecialCompleted = completedStages.indexOf('11-1') !== -1;
-            var isSpecialActive = currentStage === 11;
-            
-            if (!canAccessSpecial) {
-                specialBtn.classList.add('locked');
-                specialBtn.style.background = 'rgba(128,128,128,0.5)';
-                specialBtn.style.color = '#666';
-                specialBtn.onclick = function() { alert('全報酬を集めてスペシャルステージを解放しよう！'); };
-            } else {
-                specialBtn.onclick = function() { startStage(11, 1); };
-            }
-            
-            if (isSpecialCompleted) {
-                specialBtn.classList.add('completed');
-                specialBtn.style.background = 'linear-gradient(45deg, #4caf50, #45a049)';
-                specialBtn.style.color = 'white';
-            }
-            if (isSpecialActive) {
-                specialBtn.classList.add('active');
-                specialBtn.style.background = 'rgba(255,255,255,0.9)';
-                specialBtn.style.color = '#333';
-            }
-            
-            selector.appendChild(specialBtn);
-        }
+    // frame & particles
+    ctx.strokeStyle = 'rgba(255,255,255,.2)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(PX-2, PY-2, COLS*TILE+4, ROWS*TILE+4);
 
-        function createGameBoard() {
-            var board = document.getElementById('game-board');
-            board.innerHTML = '';
-            
-            var config = stageConfig[currentStage];
-            var cardCount = config.cards;
-            var pairCount = config.pairs;
-            
-            // 一画面に収まるように列数を決定
-            var columns;
-            if (cardCount <= 9) {
-                // 6枚(2行) or 8枚(3行) or 9枚(3行) → 3列
-                columns = 3;
-            } else if (cardCount <= 16) {
-                // 10-16枚 → 4列 (最大4行)
-                columns = 4;
-            } else {
-                // 18枚以上 → 4列 (5行以上になるが仕方なし)
-                columns = 4;
-            }
-            
-            board.style.gridTemplateColumns = 'repeat(' + columns + ', 1fr)';
+    drawParticles();
+  }
 
-            // カードペア作成
-            var cardPairs = [];
-            
-            // スペシャルステージは報酬カードを使用
-            if (currentStage === 11) {
-                for (var i = 0; i < pairCount; i++) {
-                    cardPairs.push(i, i);
-                }
-            } else {
-                // 通常ステージはハムスター画像を使用
-                for (var i = 0; i < pairCount; i++) {
-                    var imageIndex = i % hamsterImages.length;
-                    cardPairs.push(imageIndex, imageIndex);
-                }
-            }
+  let last=performance.now();
+  function loop(now){
+    const dt = now - last; last = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
 
-            shuffleArray(cardPairs);
-
-            for (var i = 0; i < cardPairs.length; i++) {
-                var card = createCard(cardPairs[i], i);
-                board.appendChild(card);
-            }
-        }
-
-        function createCard(imageIndex, cardIndex) {
-            var card = document.createElement('div');
-            card.className = 'card';
-            card.dataset.imageIndex = imageIndex;
-            card.dataset.cardIndex = cardIndex;
-            card.onclick = function() { flipCard(card); };
-
-            var cardBack = document.createElement('div');
-            cardBack.className = 'card-face card-back';
-            
-            var cardFront = document.createElement('div');
-            cardFront.className = 'card-face card-front';
-
-            if (cardBackImage) {
-                var backImg = document.createElement('img');
-                backImg.src = cardBackImage;
-                backImg.className = 'back-card-image';
-                cardBack.appendChild(backImg);
-            } else {
-                cardBack.textContent = '?';
-                cardBack.style.fontSize = '3rem';
-                cardBack.style.color = 'white';
-            }
-
-            // スペシャルステージは報酬画像、通常ステージはハムスター画像
-            var imageUrl;
-            if (currentStage === 11) {
-                imageUrl = rewardImages[imageIndex];
-            } else {
-                imageUrl = hamsterImages[imageIndex];
-            }
-
-            if (imageUrl) {
-                var frontImg = document.createElement('img');
-                frontImg.src = imageUrl;
-                frontImg.className = 'card-image';
-                cardFront.appendChild(frontImg);
-            }
-
-            card.appendChild(cardBack);
-            card.appendChild(cardFront);
-
-            return card;
-        }
-
-        function flipCard(card) {
-            if (!gameStarted || isChecking || card.classList.contains('flipped') || card.classList.contains('matched')) {
-                return;
-            }
-
-            card.classList.add('flipped');
-            flippedCards.push(card);
-
-            if (flippedCards.length === 2) {
-                attempts++;
-                updateUI();
-                checkMatch();
-            }
-        }
-
-        function checkMatch() {
-            isChecking = true;
-            var card1 = flippedCards[0];
-            var card2 = flippedCards[1];
-            
-            setTimeout(function() {
-                if (card1.dataset.imageIndex === card2.dataset.imageIndex) {
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
-                    matchedPairs++;
-                    
-                    if (matchedPairs === stageConfig[currentStage].pairs) {
-                        setTimeout(function() { completeStage(); }, 500);
-                    }
-                } else {
-                    card1.classList.remove('flipped');
-                    card2.classList.remove('flipped');
-                    
-                    remainingAttempts--;
-                    updateAttemptsDisplay();
-                    
-                    if (remainingAttempts <= 0) {
-                        setTimeout(function() { gameOver(); }, 500);
-                    }
-                }
-                
-                flippedCards = [];
-                isChecking = false;
-                updateUI();
-            }, 1000);
-        }
-
-        function completeStage() {
-            var stageKey = currentStage + '-' + currentRound;
-            if (completedStages.indexOf(stageKey) === -1) {
-                completedStages.push(stageKey);
-            }
-            gameTime = Math.floor((Date.now() - startTime) / 1000);
-            
-            // 花火エフェクト
-            createFireworks();
-            
-            if (currentStage === 11) {
-                // スペシャルステージクリア
-                // 特別な報酬は無し、達成感のみ
-            } else if (currentRound === 3) {
-                maxSunflowerSeeds += 3;
-                sunflowerSeeds = Math.min(sunflowerSeeds + 3, maxSunflowerSeeds);
-                lastStaminaUpdate = Date.now();
-                
-                var rewardName = rewardNames[currentStage - 1];
-                if (!rewardStock[rewardName]) {
-                    rewardStock[rewardName] = 0;
-                }
-                rewardStock[rewardName]++;
-            }
-            
-            saveGameData();
-            updateStaminaDisplay();
-            
-            // クリア画面表示
-            if (currentStage === 11) {
-                document.getElementById('completed-stage').textContent = 'スペシャルステージ';
-            } else {
-                document.getElementById('completed-stage').textContent = stageKey;
-            }
-            document.getElementById('clear-time').textContent = gameTime;
-            
-            if (currentStage === 11) {
-                document.getElementById('reward-section').style.display = 'none';
-            } else if (currentRound === 3) {
-                document.getElementById('reward-section').style.display = 'block';
-                document.getElementById('reward-image').src = rewardImages[currentStage - 1];
-                document.getElementById('reward-name').textContent = rewardNames[currentStage - 1];
-            } else {
-                document.getElementById('reward-section').style.display = 'none';
-            }
-            
-            document.getElementById('stage-complete').style.display = 'flex';
-        }
-
-        function nextStage() {
-            document.getElementById('stage-complete').style.display = 'none';
-            
-            if (currentStage === 11) {
-                alert('🎉 スペシャルステージクリア！真のマスターです！ 🎉');
-                startStage(1, 1); // 最初に戻る
-            } else if (currentRound < 3) {
-                startStage(currentStage, currentRound + 1);
-            } else if (currentStage < 10) {
-                startStage(currentStage + 1, 1);
-            } else {
-                // 全ステージクリア後、スペシャルステージがあるかチェック
-                if (hasAllRewards()) {
-                    alert('🎉 全ステージクリア！スペシャルステージが解放されました！ 🏆');
-                    startStage(11, 1);
-                } else {
-                    alert('🎉 全ステージクリア！おめでとうございます！ 🎉');
-                }
-            }
-        }
-
-        function createFireworks() {
-            var fireworks = document.getElementById('fireworks');
-            
-            for (var i = 0; i < 50; i++) {
-                setTimeout(function(index) {
-                    var firework = document.createElement('div');
-                    firework.className = 'firework';
-                    firework.style.left = Math.random() * 100 + '%';
-                    firework.style.top = Math.random() * 100 + '%';
-                    firework.style.background = 'hsl(' + Math.random() * 360 + ', 70%, 60%)';
-                    fireworks.appendChild(firework);
-                    
-                    setTimeout(function() {
-                        if (firework.parentNode) {
-                            firework.parentNode.removeChild(firework);
-                        }
-                    }, 1000);
-                }, i * 100);
-            }
-        }
-
-        function shareToTwitter() {
-            var showReward = currentRound === 3 || (currentStage === 11);
-            var text;
-            var gameUrl = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/';
-            
-            if (currentStage === 11) {
-                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆 #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
-            } else if (showReward) {
-                var rewardName = rewardNames[currentStage - 1];
-                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹 #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
-            } else {
-                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨ #はむケツ神経衰弱 #ハムスター #はむチラ\n' + gameUrl;
-            }
-            
-            var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
-            window.open(url, '_blank');
-        }
-
-        function shareToLine() {
-            var showReward = currentRound === 3 || (currentStage === 11);
-            var text;
-            var gameUrl = 'https://hamuchiranagaya.github.io/hamuketsu-cardgame/';
-            
-            if (currentStage === 11) {
-                text = 'スペシャルステージを' + gameTime + '秒でクリア✨🏆';
-            } else if (showReward) {
-                var rewardName = rewardNames[currentStage - 1];
-                text = currentStage + 'ステージ ' + gameTime + '秒でクリア✨報酬' + rewardName + 'をゲット🐹';
-            } else {
-                text = currentStage + '-' + currentRound + ' ' + gameTime + '秒でクリア✨';
-            }
-            
-            var url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(gameUrl) + '&text=' + encodeURIComponent(text);
-            window.open(url, '_blank');
-        }
-
-        function gameOver() {
-            document.getElementById('remaining-seeds').textContent = sunflowerSeeds;
-            
-            var retryBtn = document.getElementById('retry-btn');
-            if (sunflowerSeeds <= 0) {
-                retryBtn.disabled = true;
-                retryBtn.textContent = 'ひま種不足';
-                retryBtn.classList.add('retry-btn');
-            } else {
-                retryBtn.disabled = false;
-                retryBtn.textContent = 'ひま種で+5回';
-                retryBtn.classList.remove('retry-btn');
-            }
-            
-            document.getElementById('game-over').style.display = 'flex';
-        }
-
-        function retryWithSeed() {
-            if (sunflowerSeeds <= 0) {
-                alert('ひま種が足りません！');
-                return;
-            }
-            
-            // ひま種消費して試行回数+5回
-            sunflowerSeeds--;
-            remainingAttempts += 5;
-            saveGameData();
-            updateStaminaDisplay();
-            updateAttemptsDisplay();
-            
-            // ゲーム継続（カードの状態は保持）
-            isChecking = false;
-            document.getElementById('game-over').style.display = 'none';
-        }
-
-        function giveUpStage() {
-            document.getElementById('game-over').style.display = 'none';
-            // 最初のステージに戻る
-            startStage(1, 1);
-        }
-
-        function updateAttemptsDisplay() {
-            var attemptsElement = document.getElementById('remaining-attempts');
-            var displayElement = document.querySelector('.attempts-display');
-            
-            if (attemptsElement && displayElement) {
-                attemptsElement.textContent = remainingAttempts;
-                
-                if (remainingAttempts <= 1) {
-                    displayElement.classList.add('attempts-warning');
-                } else {
-                    displayElement.classList.remove('attempts-warning');
-                }
-            }
-        }
-
-        function updateUI() {
-            if (currentStage === 11) {
-                document.getElementById('current-stage').textContent = 'スペシャル';
-            } else {
-                document.getElementById('current-stage').textContent = currentStage + '-' + currentRound;
-            }
-            document.getElementById('card-count').textContent = stageConfig[currentStage].cards;
-            document.getElementById('pairs-found').textContent = matchedPairs;
-            document.getElementById('total-pairs').textContent = stageConfig[currentStage].pairs;
-            document.getElementById('attempts').textContent = attempts;
-        }
-
-        function updateStaminaDisplay() {
-            document.getElementById('sunflower-count').textContent = sunflowerSeeds + '/' + maxSunflowerSeeds;
-            
-            var timerElement = document.getElementById('stamina-timer');
-            var recoveryTimeElement = document.getElementById('recovery-time');
-            
-            if (sunflowerSeeds < maxSunflowerSeeds) {
-                var nextRecoveryTime = lastStaminaUpdate + (30 * 60 * 1000);
-                var timeUntilRecovery = Math.max(0, nextRecoveryTime - Date.now());
-                var minutes = Math.floor(timeUntilRecovery / 60000);
-                var seconds = Math.floor((timeUntilRecovery % 60000) / 1000);
-                
-                recoveryTimeElement.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                timerElement.style.display = 'block';
-            } else {
-                timerElement.style.display = 'none';
-            }
-            
-            updateStartButton();
-        }
-
-        function updateStartButton() {
-            var startBtn = document.getElementById('game-start-btn');
-            var isCleared = completedStages.indexOf(currentStage + '-' + currentRound) !== -1;
-            
-            if (!isCleared && sunflowerSeeds <= 0) {
-                startBtn.disabled = true;
-                startBtn.textContent = 'ひま種不足';
-            } else {
-                startBtn.disabled = false;
-                startBtn.textContent = 'ゲームスタート！';
-            }
-        }
-
-        function updateStamina() {
-            var now = Date.now();
-            var timeDiff = now - lastStaminaUpdate;
-            var recoveredSeeds = Math.floor(timeDiff / (30 * 60 * 1000));
-            
-            if (recoveredSeeds > 0 && sunflowerSeeds < maxSunflowerSeeds) {
-                sunflowerSeeds = Math.min(maxSunflowerSeeds, sunflowerSeeds + recoveredSeeds);
-                lastStaminaUpdate = now;
-                saveGameData();
-            }
-            
-            updateStaminaDisplay();
-        }
-
-        function loadGameData() {
-            try {
-                var savedData = localStorage.getItem('hamuketsu-game-data');
-                if (savedData) {
-                    var data = JSON.parse(savedData);
-                    sunflowerSeeds = data.sunflowerSeeds || 6;
-                    maxSunflowerSeeds = data.maxSunflowerSeeds || 6;
-                    lastStaminaUpdate = data.lastStaminaUpdate || Date.now();
-                    rewardStock = data.rewardStock || {};
-                    completedStages = data.completedStages || [];
-                    currentStage = data.currentStage || 1;
-                    currentRound = data.currentRound || 1;
-                }
-            } catch (e) {
-                console.log('データ読み込みエラー:', e);
-            }
-        }
-
-        function saveGameData() {
-            try {
-                var data = {
-                    sunflowerSeeds: sunflowerSeeds,
-                    maxSunflowerSeeds: maxSunflowerSeeds,
-                    lastStaminaUpdate: lastStaminaUpdate,
-                    rewardStock: rewardStock,
-                    completedStages: completedStages,
-                    currentStage: currentStage,
-                    currentRound: currentRound
-                };
-                localStorage.setItem('hamuketsu-game-data', JSON.stringify(data));
-            } catch (e) {
-                console.log('データ保存エラー:', e);
-            }
-        }
-
-        function shuffleCards() {
-            if (!gameStarted) {
-                createGameBoard();
-            } else {
-                if (confirm('シャッフルするとゲームをやり直します。よろしいですか？')) {
-                    startStage(currentStage, currentRound);
-                }
-            }
-        }
-
-        function resetGame() {
-            if (confirm('ゲームデータをリセットしますか？\n（報酬、ひま種、クリア状況がリセットされます）')) {
-                localStorage.removeItem('hamuketsu-game-data');
-                sunflowerSeeds = 3;
-                maxSunflowerSeeds = 3;
-                lastStaminaUpdate = Date.now();
-                rewardStock = {};
-                completedStages = [];
-                currentStage = 1;
-                currentRound = 1;
-                saveGameData();
-                updateStaminaDisplay();
-                startStage(1, 1);
-            }
-        }
-
-        function showRewardList() {
-            console.log('クリア報酬一覧を表示');
-            var modal = document.getElementById('reward-list-modal');
-            var grid = document.getElementById('reward-list-grid');
-            
-            grid.innerHTML = '';
-            
-            for (var i = 0; i < rewardNames.length; i++) {
-                var item = document.createElement('div');
-                item.className = 'reward-item';
-                item.style.padding = '20px';
-                
-                var nameDiv = document.createElement('div');
-                nameDiv.className = 'reward-name';
-                nameDiv.textContent = rewardNames[i];
-                nameDiv.style.fontSize = '16px';
-                nameDiv.style.fontWeight = 'bold';
-                nameDiv.style.marginBottom = '10px';
-                
-                var stageDiv = document.createElement('div');
-                stageDiv.textContent = 'ステージ' + (i + 1) + 'クリア報酬';
-                stageDiv.style.fontSize = '14px';
-                stageDiv.style.color = '#666';
-                
-                var statusDiv = document.createElement('div');
-                statusDiv.textContent = '画像は獲得後のお楽しみ♪';
-                statusDiv.style.fontSize = '12px';
-                statusDiv.style.color = '#999';
-                statusDiv.style.marginTop = '5px';
-                
-                item.appendChild(nameDiv);
-                item.appendChild(stageDiv);
-                item.appendChild(statusDiv);
-                grid.appendChild(item);
-            }
-            
-            modal.style.display = 'flex';
-        }
-
-        function closeRewardList() {
-            document.getElementById('reward-list-modal').style.display = 'none';
-        }
-
-        function showCollection() {
-            console.log('報酬図鑑を表示');
-            var modal = document.getElementById('collection-modal');
-            var grid = document.getElementById('collection-grid');
-            
-            grid.innerHTML = '';
-            
-            for (var i = 0; i < rewardNames.length; i++) {
-                var count = rewardStock[rewardNames[i]] || 0;
-                var item = document.createElement('div');
-                item.className = 'reward-item';
-                
-                var img = document.createElement('img');
-                
-                if (count > 0) {
-                    // 手に入れた報酬は実際の画像を表示
-                    img.src = rewardImages[i] || '';
-                    item.style.opacity = '1';
-                    item.style.cursor = 'pointer';
-                    
-                    // クリックで拡大表示
-                    item.onclick = (function(index, rewardName, rewardCount) {
-                        return function() {
-                            showRewardDetail(index, rewardName, rewardCount);
-                        };
-                    })(i, rewardNames[i], count);
-                } else {
-                    // 手に入れていない報酬はカードバック画像を表示
-                    img.src = cardBackImage || '';
-                    item.style.opacity = '0.6';
-                    item.style.cursor = 'default';
-                }
-                
-                img.alt = rewardNames[i];
-                
-                var nameDiv = document.createElement('div');
-                nameDiv.className = 'reward-name';
-                nameDiv.textContent = rewardNames[i]; // 報酬名は常に表示
-                
-                var countDiv = document.createElement('div');
-                countDiv.className = 'reward-count';
-                countDiv.textContent = '×' + count;
-                
-                item.appendChild(img);
-                item.appendChild(nameDiv);
-                item.appendChild(countDiv);
-                grid.appendChild(item);
-            }
-            
-            modal.style.display = 'flex';
-        }
-
-        function showRewardDetail(index, name, count) {
-            var modal = document.getElementById('reward-detail-modal');
-            
-            document.getElementById('reward-detail-name').textContent = name;
-            document.getElementById('reward-detail-image').src = rewardImages[index];
-            document.getElementById('reward-detail-count').textContent = '所持数: ×' + count;
-            
-            modal.style.display = 'flex';
-        }
-
-        function closeRewardDetail() {
-            document.getElementById('reward-detail-modal').style.display = 'none';
-        }
-
-        function closeCollection() {
-            document.getElementById('collection-modal').style.display = 'none';
-        }
-
-        function shuffleArray(array) {
-            for (var i = array.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = array[i];
-                array[i] = array[j];
-                array[j] = temp;
-            }
-        }
-
-        // 初期化実行
-        window.onload = function() {
-            console.log('ページ読み込み完了、初期化開始');
-            init();
-        };
-    </script>
+  restart();
+  requestAnimationFrame(loop);
+})();
+</script>
 </body>
 </html>
